@@ -56,7 +56,6 @@ sub compile {
         $self->complete_type($element);
     }
 
-    
 }
 
 sub complete_ref {

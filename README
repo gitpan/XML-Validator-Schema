@@ -1,26 +1,15 @@
-XML::Validator::Schema version 1.03
+XML::Validator::Schema version 1.04
 
 CHANGES
 
-   1.03  2003-10-03
+   1.04  2003-10-06
+   - Added support for minOccurs and maxOccurs with <sequence>,
+     <choice> and <all>.
 
-   - Added cache mode to reuse schema objects between calls.
+   - Fixed bug in cache implementation that allowed some state from a
+     failed validation run to leak into subsequent runs.
 
-   - Added support for more builtin simpleTypes: normalizedString,
-     token, short, byte, unsignedInt, unsignedShort, unsignedByte
-
-   - Added support for element and attribute refs.
-
-   - Added support for simpleContent.
-
-   - Fixed bug preventing <simpleType> within <sequence> or <choice>
-     from working.
-
-   - Fixed NMTOKEN implementation to derive from token instead of string.
-
-   - Fixed bug where test suite would fail if XML::SAX::RTF was
-     installed.
-
+   - Added support for use as a SAX filter anywhere in a SAX pipeline.
 
 DESCRIPTION
 

@@ -39,3 +39,11 @@ Revision history for XML::Validator::Schema
    - Fixed bug where test suite would fail if XML::SAX::RTF was
      installed.
 
+1.04  2003-10-06
+   - Added support for minOccurs and maxOccurs with <sequence>,
+     <choice> and <all>.
+
+   - Fixed bug in cache implementation that allowed some state from a
+     failed validation run to leak into subsequent runs.
+
+   - Added support for use as a SAX filter anywhere in a SAX pipeline.

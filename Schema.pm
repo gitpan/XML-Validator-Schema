@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 =head1 NAME
 
@@ -128,9 +128,15 @@ namespace, either using a default namespace or a prefix.
 
   <sequence>
 
+     Supported attributes: minOccurs, maxOccurs
+
   <choice>
 
+     Supported attributes: minOccurs, maxOccurs
+
   <all>
+
+     Supported attributes: minOccurs, maxOccurs
 
   <complexType>
 
@@ -323,16 +329,6 @@ is ready for action.
 
 =item *
 
-No performance testing or tuning has been done.
-
-=item *
-
-The module doesn't pass-along SAX events and as such isn't ready to be
-used as a real SAX filter.  The example in the L<SYNOPSIS|"SYNOPSIS">
-works, but that's it.
-
-=item *
-
 No Unicode testing has been performed, although it seems possible that
 the module will handle Unicode data correctly.
 
@@ -455,13 +451,15 @@ sub new {
         $CACHE{$self->{file}}{mtime} == (stat($self->{file}))[9]) {
 
         # load cached object
-        $self->{node_stack} = [ @{$CACHE{$self->{file}}{node_stack}} ];
+        $self->{node_stack} = $CACHE{$self->{file}}{node_stack};
+
+        # might have nodes on it leftover from failed validation,
+        # truncate to root
+        $#{$self->{node_stack}} = 0;
 
         # clean up any lingering state from the last use of this tree
         $self->{node_stack}[0]->walk_down(
-           { callback => sub { 
-                 $_[0]->clear_memory 
-                   if $_[0]->can('clear_memory') } });
+           { callback => sub { shift->clear_memory; 1; } });
 
     } else {
         # create an empty element stack
@@ -511,6 +509,8 @@ sub start_element {
 
     # enter daughter node
     push(@$node_stack, $daughter);
+
+    $self->SUPER::start_element($data);
 }
 
 # check character content
@@ -519,6 +519,8 @@ sub characters {
     my $element = $self->{node_stack}[-1];
     $element->check_contents($data->{Data});
     $element->{checked_content} = 1;
+
+    $self->SUPER::characters($data);
 }
 
 # finish element checking
@@ -539,6 +541,8 @@ sub end_element {
     # done
     $element->clear_memory();
     pop(@$node_stack);
+
+    $self->SUPER::end_element($data);
 }
 
 1;

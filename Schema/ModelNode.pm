@@ -5,7 +5,7 @@ use base 'XML::Validator::Schema::Node';
 use constant DEBUG => 0;
 
 use Carp qw(croak);
-use XML::Validator::Schema::Util qw(_err);
+use XML::Validator::Schema::Util qw(_err _attr);
 
 =head1 NAME
 
@@ -26,11 +26,30 @@ sub parse {
     my ($pkg, $data) = @_;
     my $name = $data->{LocalName};
     croak("Unknown model type '$name'")
-      unless $name eq 'sequence' or $name eq 'choice' or $name eq 'all';
+      unless $name eq 'sequence' or $name eq 'choice' or $name eq 'all';    
 
     # construct as appropriate
     $pkg = "XML::Validator::Schema::" . ucfirst($name) . "ModelNode";
-    my $self = $pkg->new(@_);
+    my $self = $pkg->new();
+   
+    my $min = _attr($data, 'minOccurs');
+    $min = 1 unless defined $min;
+    _err("Invalid value for minOccurs '$min' found in <$name>.")
+      unless $min =~ /^\d+$/;
+    $self->{min} = $min;
+
+    my $max = _attr($data, 'maxOccurs');
+    $max = 1 unless defined $max;
+    _err("Invalid value for maxOccurs '$max' found in <$name>.")
+      unless $max =~ /^\d+$/ or $max eq 'unbounded';
+    $self->{max} = $max;
+
+    if ($name eq 'all') {
+        _err("Found <all> with minOccurs neither 0 nor 1.")
+          unless $self->{min} eq '1' or $self->{min} eq '0';
+        _err("Found <all> with maxOccurs not 1.")
+          unless $self->{max} eq '1';
+    }
 
     return $self;
 }
@@ -162,7 +181,8 @@ sub _combine_final_parts {
     my ($self, $parts) = @_;
 
     # build final re
-    my $re = '(?:' . join('', @$parts) . ')';
+    my $re = '(?:' . join('', @$parts) . ')' . 
+      XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
 
     return $re;
 }
@@ -174,6 +194,7 @@ sub _combine_running_parts {
     my $re = join('', map { "(?:$_" } @$parts) . 
              ")?" x @$parts;
     $re =~ s!\?$!!;
+    $re .= XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
 
     return $re;
 }
@@ -182,7 +203,8 @@ sub _combine_desc_parts {
     my ($self, $parts) = @_;
 
     # build description
-    my $desc = '(' . join(',', @$parts) . ')';
+    my $desc = '(' . join(',', @$parts) . ')' 
+      . XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
 
     return $desc;
 }
@@ -194,7 +216,8 @@ sub _combine_final_parts {
     my ($self, $parts) = @_;
 
     # build final re
-    my $re = '(?:' . join('|', map { '(?:'. $_ . ')' } @$parts) . ')';
+    my $re = '(?:' . join('|', map { '(?:'. $_ . ')' } @$parts) . ')' .
+      XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
 
     return $re;
 }
@@ -203,7 +226,8 @@ sub _combine_running_parts {
     my ($self, $parts) = @_;
 
     # build running re
-    my $re = '(?:' . $self->_combine_final_parts($parts) . ')';
+    my $re = '(?:' . $self->_combine_final_parts($parts) . ')' .
+      XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
 
     return $re;
 }
@@ -212,7 +236,8 @@ sub _combine_desc_parts {
     my ($self, $parts) = @_;
 
     # build description
-    my $desc = '(' . join('|', @$parts) . ')';
+    my $desc = '(' . join('|', @$parts) . ')' .
+      XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
 
     return $desc;
 }

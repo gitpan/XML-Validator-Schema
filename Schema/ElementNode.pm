@@ -153,9 +153,19 @@ sub check_attributes {
     }
 }
 
+# finish
+sub compile {
+    my $self = shift;
+
+    if ($self->daughters and 
+        ($self->daughters)[0]->isa('XML::Validator::Schema::ModelNode')) {
+        ($self->daughters)[0]->compile;
+    }
+}
+
 # forget about the past
 sub clear_memory {
-    delete $_[0]->{memory};
+    @{$_[0]->{memory}} = () if $_[0]->{memory};
 }
 
 

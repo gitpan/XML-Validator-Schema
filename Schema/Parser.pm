@@ -23,7 +23,7 @@ sub new {
 
     # start with a dummy root node and an empty stack of elements
     $self->{node_stack} = $self->{schema}{node_stack};
-    
+
     return $self;
 }
 
@@ -219,9 +219,7 @@ sub end_element {
 
     # end of an element?
     if ($name eq 'element') {
-        ($node->daughters)[0]->compile 
-          if $node->daughters and 
-            ($node->daughters)[0]->isa('XML::Validator::Schema::ModelNode');
+        $node->compile();
         pop @$node_stack;
         return;
     }         

@@ -17,11 +17,7 @@ complexType nodes derived from XML Schema documents.
 
 sub compile {
     my ($self) = shift;
-
-    # compile model if needed
-    if ($self->daughters) {
-        ($self->daughters)[0]->compile;
-    }
+    $self->SUPER::compile();
 
     # register in the library if this is a named type
     $self->root->{type_library}->add(name => $self->{name},

@@ -25,6 +25,7 @@ t/02yaml.t
 t/03types.t
 t/04model.t
 t/05xerces.t
+t/06passthru.t
 t/all.yml
 t/attribute.yml
 t/attribute_ref.yml
@@ -37,6 +38,7 @@ t/element_ref.yml
 t/element_type.yml
 t/foo.yml
 t/global_type.yml
+t/group.yml.todo
 t/lib/TestRunner.pm
 t/lib/YAML.pm
 t/lib/YAML/Error.pm
@@ -48,8 +50,10 @@ t/multi_level.yml
 t/multiroot.yml
 t/ora_book_1.yml.todo
 t/plankton.yml
+t/plankton_orig.yml
 t/qualified.yml
 t/recursive.yml
+t/repeated_groups.yml
 t/restricted_integer.yml
 t/restriction.yml
 t/restriction_anon.yml
@@ -58,4 +62,6 @@ t/sequence_with_choice.yml
 t/simple_content.yml
 t/simple_recursion.yml
 t/story.yml
+t/test.xml
+t/test.xsd
 t/two_level.yml

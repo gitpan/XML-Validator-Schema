@@ -21,7 +21,11 @@ use TestRunner qw(test_yml_xerces);
 if ($ENV{TEST_YML}) {
     test_yml_xerces($ENV{TEST_YML});
 } else {
-    for (sort grep { $_ ne 't/qualified.yml' } glob('t/*.yml')) {
+
+    # skip tests Xerces doesn't like
+    for (sort grep { $_ ne 't/qualified.yml' and
+                     $_ ne 't/repeated_groups.yml'
+                   } glob('t/*.yml')) {
         print "\n######## $_ #######\n";
         test_yml_xerces($_);
     }
