@@ -91,7 +91,18 @@ sub start_element {
     }
 
     elsif ($name eq 'sequence') {
+        $self->_err("Found a <sequence> embedded in a <choice> or an <all> which is not yet supported.") if $mother->{is_choice} or $mother->{is_all};
         $mother->{is_sequence} = 1;
+    }
+
+    elsif ($name eq 'choice') {
+        $self->_err("Found a <choice> embedded in a <sequence> or an <all> which is not yet supported.") if $mother->{is_sequence} or $mother->{is_all};
+        $mother->{is_choice} = 1;
+    }
+
+    elsif ($name eq 'all') {
+        $self->_err("Found an <all> embedded in a <choice> or a <sequence> which is not yet supported.") if $mother->{is_sequence} or $mother->{is_all};
+        $mother->{is_all} = 1;
     }
 
     elsif ($name eq 'annotation' or $name eq 'documentation') {
@@ -107,6 +118,7 @@ sub start_element {
 sub end_element {
     my ($self, $data) = @_;
     my $node_stack = $self->{node_stack};
+    my $node = $node_stack->[-1];
 
     # all done?
     if ($data->{LocalName} eq 'schema') {

@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 NAME
 
@@ -116,6 +116,10 @@ misconstrued as a feature and will eventually be fixed.
 
   <sequence>
 
+  <choice>
+
+  <all>
+
   <complexType>
 
     Supported attributes: name
@@ -154,6 +158,10 @@ Global attributes are not supported.
 =item *
 
 Named complex types must be global.
+
+=item *
+
+Sequence, choice and all elements may not be composed.
 
 =back
 
@@ -327,7 +335,8 @@ sub end_element {
     my $node_stack = $self->{node_stack};
     my $element = $node_stack->[-1];
 
-    $element->check_min_max();
+    # check min/max within a sequence
+    $element->check_min_max() if $element->{is_sequence} or $element->{is_all};
 
     # done
     $element->clear_memory();

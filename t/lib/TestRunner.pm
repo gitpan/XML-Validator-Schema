@@ -12,11 +12,35 @@ my $Test = Test::Builder->new;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = ('test_yml');
+our @EXPORT = ('test_yml', 'foreach_parser');
 
 use YAML qw(LoadFile);
 use XML::SAX::ParserFactory;
 use XML::Validator::Schema;
+use XML::SAX;
+
+use Data::Dumper;
+
+sub foreach_parser (&) {
+    my $tests = shift;
+
+    my @parsers = map { $_->{Name} } (@{XML::SAX->parsers});
+    @parsers = ($ENV{XMLVS_TEST_PARSER}) if exists $ENV{XMLVS_TEST_PARSER};
+    
+    # remove XML::LibXML::SAX::Parser from this list.  what is that anyway?
+    @parsers = grep { $_ ne 'XML::LibXML::SAX::Parser' } @parsers;
+
+    # run tests with all available parsers
+    foreach my $pkg (@parsers) {
+        $XML::SAX::ParserPackage = $pkg;    
+        
+        # make sure the parser is available
+        my $parser = XML::SAX::ParserFactory->parser();
+        print STDERR "\n\n                ======> Testing against $pkg ".
+          "<======\n\n";
+        $tests->();            
+    }
+}
 
 sub test_yml {
     my $file = shift;
@@ -43,17 +67,22 @@ sub test_yml {
                                                      "t/$prefix.xsd"));
             $parser->parse_string($xml) 
         };
+        my $err = $@;
 
         if ($result =~ m!^FAIL\s*(?:/(.*?)/)?$!) {
             my $re = $1;
-            $Test->ok($@, "$prefix.yml: block $num should fail validation");
+            $Test->ok($err, "$prefix.yml: block $num should fail validation");
             if ($re) {
-                $Test->like($@, qr/$re/, 
-                     "$prefix.yml: block $num should fail matching /$re/");
+                if ($err) {
+                    $Test->like($err, qr/$re/, 
+                                "$prefix.yml: block $num should fail matching /$re/");
+                } else {
+                    $Test->ok(0, "$prefix.yml: block $num should fail matching /$re/");
+                }
             }
         } else {
-            $Test->ok(not($@), "$prefix.yml: block $num should pass validation");
-            print STDERR "$prefix.yml: block $num ====> $@\n" if $@;
+            $Test->ok(not($err), "$prefix.yml: block $num should pass validation");
+            print STDERR "$prefix.yml: block $num ====> $@\n" if $err;
         }
     }
 

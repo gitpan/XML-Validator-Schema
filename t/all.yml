@@ -1,0 +1,75 @@
+# simple all test
+
+--- |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <schema>
+    <element name="foo">
+      <complexType>
+        <all>
+          <element name="this" />
+          <element name="other" minOccurs="0"/>
+          <element name="that" />
+        </all>
+      </complexType>
+    </element>
+  </schema>
+
+--- |
+  <foo>
+    <this/>
+    <that/>
+  </foo>
+--- >
+PASS
+
+--- |
+  <foo>
+    <that/>
+    <this/>
+  </foo>
+--- >
+PASS
+
+--- |
+  <foo>
+    <this/>
+    <that/>
+    <other/>
+  </foo>
+--- >
+PASS
+
+--- |
+  <foo>
+    <other/>
+    <that/>
+    <this/>
+  </foo>
+--- >
+PASS
+
+--- |
+  <foo>
+    <that/>
+  </foo>
+--- >
+FAIL /[mM]issing required element.*<this>/
+
+--- |
+  <foo>
+    <this/>
+  </foo>
+--- >
+FAIL /[mM]issing required element.*<that>/
+
+--- |
+  <foo>
+    <that/>
+    <this/>
+    <that/>
+  </foo>
+--- >
+FAIL /too many/
+
+
+

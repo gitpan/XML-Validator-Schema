@@ -2,8 +2,14 @@ XML::Validator::Schema version 1.00
 
 CHANGES
 
-   1.00  2003-09-25
-      - First Release.
+   1.01  2003-09-26
+     - Fixed compatibility with XML::LibXML.
+
+     - Modified test suite to run tests against all available SAX parsers.
+
+     - Added support for simple <choice> and <all> content modules (no
+       combinations yet).
+
 
 DESCRIPTION
 

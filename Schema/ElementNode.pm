@@ -19,7 +19,7 @@ use XML::Validator::Schema::Type qw(check_type supported_type);
 
 # create a node based on the contents of an element hash
 sub parse {
-    my ($pkg, $data) = @_;
+    my ($pkg, $data, $mother) = @_;
     my $self = $pkg->new();
 
     my $name = _attr($data, 'name');
@@ -48,6 +48,21 @@ sub parse {
     $self->{max} = $max;
 
     return $self;
+}
+
+# override add_daughter to check parent-specific requirements
+sub add_daughter {
+    my ($self, $d) = @_;
+
+    # check that min/mix are 0 or 1 for 'all' contents
+    if ($self->{is_all}) {
+        $self->_err("Element '$d->{name}' must have minOccurs of 0 or 1 because it is within an <all>.")
+          unless ($d->{min} eq '0' or $d->{min} eq '1');
+        $self->_err("Element '$d->{name}' must have maxOccurs of 0 or 1 because it is within an <all>.")
+          unless ($d->{max} eq '0' or $d->{max} eq '1');
+    }
+
+    return $self->SUPER::add_daughter($d);
 }
 
 # check contents of an element against declared type
@@ -142,6 +157,17 @@ sub check_daughter {
         $self->_err("Found a '<$name>' out of order.  Contents of <$self->{name}> must match ...");
     }
 
+    # all check
+    if ($self->{is_all} and
+        grep { $_ eq $name } @{$self->{memory}}) {
+        $self->_err("Found too many <$name> elements.  Only one is allowed.");
+    }
+
+    # choice check
+    if ($self->{is_choice} and @{$self->{memory} || []}) {
+        $self->_err("Found an extra element (<$name>) inside <$self->{name}> which may only have one element.");
+    }
+
     # does this daughter have a valid type?  if not, attempt to elaborate
     if ($daughter->{type} and not supported_type($daughter->{type})) {        
         # FIX: should avoid rewalking all elements here
@@ -199,7 +225,6 @@ sub check_attributes {
           unless $saw{$name};
     }
 }
-
 
 # forget about the past
 sub clear_memory {

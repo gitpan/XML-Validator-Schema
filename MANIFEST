@@ -1,9 +1,9 @@
+ANNOUNCE
 Changes
 MANIFEST
 MANIFEST.SKIP
 Makefile.PL
 README
-ANNOUNCE
 Schema.pm
 Schema/Attribute.pm
 Schema/ComplexTypeNode.pm
@@ -15,9 +15,12 @@ Schema/Util.pm
 t/01basic.t
 t/02yaml.t
 t/03types.t
+t/all.yml
 t/attribute.yml
 t/attribute_types.yml
+t/bad_all.yml
 t/bad_attribute_type.yml
+t/choice.yml
 t/element_type.yml
 t/foo.yml
 t/global_type.yml
