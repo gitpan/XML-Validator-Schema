@@ -32,6 +32,36 @@ class.
 use Carp qw(croak);
 use XML::Validator::Schema::Util qw(XSD _err);
 
+###############################################################################################
+### begin code taken from Date::Simple
+###############################################################################################
+sub leap_year {
+    my $y = shift;
+    return (($y%4==0) and ($y%400==0 or $y%100!=0)) || 0;
+}
+ 
+my @days_in_month = (
+ [0,31,28,31,30,31,30,31,31,30,31,30,31],
+ [0,31,29,31,30,31,30,31,31,30,31,30,31],
+);
+ 
+sub days_in_month ($$) {
+    my ($y,$m) = @_;
+    return $days_in_month[leap_year($y)][$m];
+}
+ 
+my $validate = sub ($$$) {
+    my ($y, $m, $d)= @_;
+    # any +ve integral year is valid
+    return qr{(?!)} if $y != abs int $y;
+    return qr{(?!)} unless 1 <= $m and $m <= 12;
+    return qr{(?!)} unless 1 <= $d and $d <= $days_in_month[leap_year($y)][$m];
+    return qr{(?=)};
+};
+###############################################################################################
+### end code taken from Date::Simple
+###############################################################################################
+
 # facet support bit-patterns
 use constant LENGTH         => 0b0000000000000001;
 use constant MINLENGTH      => 0b0000000000000010;
@@ -93,6 +123,16 @@ $BUILTIN{dateTime} = __PACKAGE__->new(name   => 'dateTime',
                                      );
 $BUILTIN{dateTime}->restrict(pattern => qr/^[-+]?(\d{4,})-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:(?:Z)|(?:[-+]\d{2}:\d{2}))?$/);
 
+$BUILTIN{float} = __PACKAGE__->new(name => 'float',
+                                    facets => PATTERN|WHITESPACE,
+                                              #|ENUMERATION|
+                                              #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                              #MININCLUSIVE|MINEXCLUSIVE);
+                                   );
+
+$BUILTIN{float}->restrict(pattern => 
+     qr/^[+-]?(?:(?:INF)|(?:NaN)|(?:\d+(?:\.\d+)?)(?:[eE][+-]?\d+)?)$/);
+
 $BUILTIN{double} = __PACKAGE__->new(name => 'double',
                                     facets => PATTERN|WHITESPACE,
                                               #|ENUMERATION|
@@ -102,6 +142,131 @@ $BUILTIN{double} = __PACKAGE__->new(name => 'double',
 
 $BUILTIN{double}->restrict(pattern => 
      qr/^[+-]?(?:(?:INF)|(?:NaN)|(?:\d+(?:\.\d+)?)(?:[eE][+-]?\d+)?)$/);
+
+$BUILTIN{duration} = __PACKAGE__->new(name => 'duration',
+                                    facets => PATTERN|WHITESPACE,);
+#facets => PATTERN|WHITESPACE|ENUMERATION|MAXINCLUSIVE|MAXEXCLUSIVE|MININCLUSIVE|MINEXCLUSIVE);
+                                   
+# thanks to perlmonk Abigail-II
+$BUILTIN{duration}->restrict(pattern => qr /^-? # Optional leading minus.
+              P                            # Required.
+              (?=[T\d])                    # Duration cannot be empty.
+           (?:(?!-) \d+ Y)?      # Non-negative integer, Y (optional)
+           (?:(?!-) \d+ M)?      # Non-negative integer, M (optional)
+           (?:(?!-) \d+ D)?      # Non-negative integer, D (optional)
+	(
+           (?:T (?=\d)           # T, must be followed by a digit.
+           (?:(?!-) \d+ H)?      # Non-negative integer, H (optional)
+           (?:(?!-) \d+ M)?      # Non-negative integer, M (optional)
+           (?:(?!-) \d+\.\d+ S)?  # Non-negative decimal, S (optional)
+           )?                              # Entire T part is optional
+	)$/x);
+
+$BUILTIN{time} = __PACKAGE__->new(name   => 'time', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{time}->restrict(pattern => 
+	qr /^[0-2]\d:[0-5]\d:[0-5]\d(\.\d+)?(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/);
+
+$BUILTIN{date} = __PACKAGE__->new(name   => 'date', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{date}->restrict(pattern => 
+	qr /^[-]?(\d{4,})-(\d\d)-(\d\d)(??{$validate->($1,$2,$3)})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/);
+		
+
+$BUILTIN{gYearMonth} = __PACKAGE__->new(name   => 'gYearMonth', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{gYearMonth}->restrict(pattern => 
+	qr /^[-]?(\d{4,})-(1[0-2]{1}|0\d{1})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/);
+
+$BUILTIN{gYear} = __PACKAGE__->new(name   => 'gYear', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{gYear}->restrict(pattern => 
+	qr /^[-]?(\d{4,})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/);
+
+$BUILTIN{gMonthDay} = __PACKAGE__->new(name   => 'gMonthDay', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{gMonthDay}->restrict(pattern => 
+	qr /^--(\d{2,})-(\d\d)(??{$validate->(1999,$1,$2)})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/ );
+
+$BUILTIN{gDay} = __PACKAGE__->new(name   => 'gDay', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{gDay}->restrict(pattern => 
+	qr /^---([0-2]\d{1}|3[0|1])(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/ );
+
+$BUILTIN{gMonth} = __PACKAGE__->new(name   => 'gMonth', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{gMonth}->restrict(pattern => 
+	qr /^--(0\d|1[0-2])(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/ );
+
+$BUILTIN{hexBinary} = __PACKAGE__->new(name   => 'hexBinary', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{hexBinary}->restrict(pattern => 
+	qr /^([0-9a-fA-F][0-9a-fA-F])+$/);
+
+
+$BUILTIN{base64Binary} = __PACKAGE__->new(name   => 'base64Binary', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{base64Binary}->restrict(pattern => 
+	qr /^([0-9a-zA-Z\+\\\=][0-9a-zA-Z\+\\\=])+$/);
+
+$BUILTIN{anyURI} = __PACKAGE__->new(name   => 'anyURI',
+                                    facets => LENGTH|MINLENGTH|MAXLENGTH|
+                                              PATTERN|ENUMERATION|WHITESPACE,
+                                   );
+
+$BUILTIN{QName} = __PACKAGE__->new(name   => 'QName', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{QName}->restrict(pattern => 
+	qr /^([A-z][A-z0-9]+:)?([A-z][A-z0-9]+)$/);
+
+$BUILTIN{NOTATION} = __PACKAGE__->new(name   => 'NOTATION', 
+                                      facets => PATTERN|WHITESPACE
+                                                #|ENUMERATION|
+                                                #MAXINCLUSIVE|MAXEXCLUSIVE|
+                                                #MININCLUSIVE|MINEXCLUSIVE,
+                                     );
+$BUILTIN{NOTATION}->restrict(pattern => 
+	qr /^([A-z][A-z0-9]+:)?([A-z][A-z0-9]+)$/);
 
 # create derived types
 $BUILTIN{integer} = $BUILTIN{decimal}->derive(name => 'integer');

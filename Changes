@@ -47,3 +47,21 @@ Revision history for XML::Validator::Schema
      failed validation run to leak into subsequent runs.
 
    - Added support for use as a SAX filter anywhere in a SAX pipeline.
+
+1.05 2003-11-13 
+   - Added support for more simple types (Russell B Cecala) :
+         float
+         duration
+         time
+         date
+         gYearMonth
+         gYear
+         gMonthDay
+         gDay
+         gMonth
+         hexBinary
+         base64Binary
+         anyURI
+         QName
+         NOTATION
+

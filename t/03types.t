@@ -115,3 +115,104 @@ ok(check_type(double => 'INF'));
 ok(not check_type(double => 'A'));
 ok(not check_type(double => 'b10.5'));
 ok(not check_type(double => ''));
+
+ok(supported_type('QName'));
+ok(check_type(QName =>'pre:myElement'));
+ok(check_type(QName =>'myElement'));
+ok(check_type(QName =>'a123:b3212'));
+ok(check_type(QName =>'b3212'));
+ok(not check_type(QName =>':myElement'));
+ok(not check_type(QName =>'pre:3myElement'));
+
+
+ok(supported_type('base64Binary'));
+ok(check_type(base64Binary => '1968'));
+ok(check_type(base64Binary => '0FB8'));
+ok(check_type(base64Binary => '0fb8'));
+ok(check_type(base64Binary => '0F'));
+ok(check_type(base64Binary => 'FFFF00'));
+ok(check_type(base64Binary => 'FFZq09'));
+ok(check_type(base64Binary => 'F+Zq09'));
+
+
+ok(supported_type('date'));
+ok(check_type(date => '1968-04-02'));
+ok(check_type(date => '-0045-01-01'));
+ok(check_type(date => '11968-04-02'));
+ok(check_type(date => '1968-04-02+05:00'));
+ok(check_type(date => '1968-04-02Z'));
+ok(not check_type(date => '68-04-02'));
+ok(not check_type(date => '1968-4-2'));
+ok(not check_type(date => '1968/04/02'));
+ok(not check_type(date => '04-02-1968'));
+ok(not check_type(date => '1968-04-31'));
+
+
+ok(supported_type('gDay'));
+ok(check_type(gDay => '---02'));
+ok(check_type(gDay => '---02-05:00'));
+ok(check_type(gDay => '---02Z'));
+ok(not check_type(gDay => '02'));
+ok(not check_type(gDay => '---2'));
+ok(not check_type(gDay => '---32'));
+
+
+ok(supported_type('gMonth'));
+ok(check_type(gMonth => '--04'));
+ok(check_type(gMonth => '--04-05:00'));
+ok(check_type(gMonth => '--04Z'));
+ok(not check_type(gMonth => '04'));
+ok(not check_type(gMonth => '--4'));
+ok(not check_type(gMonth => '--13'));
+
+
+ok(supported_type('gMonthDay'));
+ok(check_type(gMonthDay => '--04-02'));
+ok(check_type(gMonthDay => '--04-02-05:00'));
+ok(check_type(gMonthDay => '--04-12Z'));
+ok(not check_type(gMonthDay => '--4-12Z'));
+ok(not check_type(gMonthDay => '--4-12'));
+ok(not check_type(gMonthDay => '--04-12+26:00'));
+
+
+ok(supported_type('gYear'));
+ok(check_type(gYear => '1968'));
+ok(check_type(gYear => '1968-05:00'));
+ok(check_type(gYear => '11968'));
+ok(check_type(gYear => '0968'));
+ok(check_type(gYear => '-0045'));
+ok(not check_type(gYear => '68'));
+ok(not check_type(gYear => '968'));
+ok(not check_type(gYear => '1968-25:00'));
+
+
+ok(supported_type('gYearMonth'));
+ok(check_type(gYearMonth => '1968-04'));
+ok(check_type(gYearMonth => '1968-04-05:00'));
+ok(check_type(gYearMonth => '1968-12Z'));
+ok(not check_type(gYearMonth => '68-04'));
+ok(not check_type(gYearMonth => '1968'));
+ok(not check_type(gYearMonth => '1968-4'));
+ok(not check_type(gYearMonth => '1968-13'));
+
+
+ok(supported_type('hexBinary'));
+ok(check_type(hexBinary => '1968'));
+ok(check_type(hexBinary => '0FB8'));
+ok(check_type(hexBinary => '0fb8'));
+ok(check_type(hexBinary => '0F'));
+ok(check_type(hexBinary => 'FFFF00'));
+ok(not check_type(hexBinary => 'FB8'));
+
+
+ok(supported_type('time'));
+ok(check_type(time => '13:30:59'));
+ok(check_type(time => '13:20:30.5555'));
+ok(check_type(time => '13:20:30-05:00'));
+ok(check_type(time => '13:20:30Z'));
+ok(not check_type(time => '5:20:30'));
+ok(not check_type(time => '05:0:30'));
+ok(not check_type(time => '05:20:3'));
+ok(not check_type(time => '05:20:'));
+ok(not check_type(time => '05:20.5:30'));
+ok(not check_type(time => '05:65:30'));

@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 =head1 NAME
 
@@ -253,6 +253,34 @@ Supported built-in types are:
     minimum and maximum constraints as described in the spec are not
     checked.
 
+  float
+
+  duration
+
+  time
+
+  date
+
+  gYearMonth
+
+  gYear
+
+  gMonthDay
+
+  gDay
+
+  gMonth
+
+  hexBinary
+
+  base64Binary
+
+  anyURI
+
+  QName
+
+  NOTATION
+
 =head2 Miscellaneous Details
 
 Other known devations from the specification:
@@ -374,7 +402,7 @@ check out a copy of the CVS tree:
 The following people have contributed bug reports, test cases and/or
 code:
 
-  Plankton
+  Russell B Cecala (aka Plankton)
   David Wheeler
 
 =head1 AUTHOR
@@ -383,7 +411,7 @@ Sam Tregar <sam@tregar.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2002 Sam Tregar
+Copyright (C) 2002-2003 Sam Tregar
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl 5 itself.

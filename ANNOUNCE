@@ -1,15 +1,22 @@
-ANNOUNCEMENT: XML::Validator::Schema 1.04
+ANNOUNCEMENT: XML::Validator::Schema 1.05
 
 CHANGES
 
-   1.04  2003-10-06
-   - Added support for minOccurs and maxOccurs with <sequence>,
-     <choice> and <all>.
-
-   - Fixed bug in cache implementation that allowed some state from a
-     failed validation run to leak into subsequent runs.
-
-   - Added support for use as a SAX filter anywhere in a SAX pipeline.
+   - Added support for more simple types (Russell B Cecala) :
+         float
+         duration
+         time
+         date
+         gYearMonth
+         gYear
+         gMonthDay
+         gDay
+         gMonth
+         hexBinary
+         base64Binary
+         anyURI
+         QName
+         NOTATION
 
 DESCRIPTION
 
