@@ -16,6 +16,13 @@ Temporary node in the schema parse tree to represent a simpleType.
 
 =cut
 
+# Hash mapping facet names to allowable values
+our %FACET_VALUE = (length =>         "nonNegativeInteger",
+                    minLength =>      "nonNegativeInteger",
+                    maxLength =>      "nonNegativeInteger",
+                    totalDigits =>    "positiveInteger",
+                    fractionDigits => "nonNegativeInteger");
+
 sub parse {
     my ($pkg, $data) = @_;
     my $self = $pkg->new();
@@ -44,6 +51,7 @@ sub parse_facet {
     my $value = _attr($data, 'value');
     _err("Found facet <$facet> without required 'value' attribute.")
       unless defined $value;
+    $self->check_facet_value($facet, $value, $FACET_VALUE{$facet}) if defined $FACET_VALUE{$facet};
 
     push @{$self->{restrictions}{$facet} ||= []}, $value;
 }
@@ -75,6 +83,34 @@ sub compile {
       if $self->{name};
 
     return $type;
+}
+
+sub check_facet_value {
+  my ($self, $facet, $value, $type_name) = @_;
+  my ($ok, $msg) = $self->root->{type_library}->find(name => $type_name)->check($value);
+  _err("Facet <$facet> value $value is not a $type_name")
+    unless $ok;
+}
+
+sub check_constraints {
+  my ($self) = @_;
+  my $r = $self->{restrictions};
+
+  # Schema Component Constraint: fractionDigits-totalDigits
+  if (exists $r->{fractionDigits} && exists $r->{totalDigits}) {
+    _err("Facet <fractionDigits> value $r->{fractionDigits}[0] is greater than facet <totalDigits> value $r->{totalDigits}[0]")
+      if ($r->{fractionDigits}[0] > $r->{totalDigits}[0]);
+  }
+
+  # Schema Component Constraint: length-minLength-maxLength
+  _err("Facet <length> is defined in addition to facets <minLength> or <maxLength>")
+    if (exists $r->{length} && (exists $r->{minLength} || exists $r->{maxLength}));
+
+  # Schema Component Constraint: minLength-less-than-equal-to-maxLength
+  if (exists $r->{minLength} && exists $r->{maxLength}) {
+    _err("Facet <minLength> value $r->{minLength}[0] is greater than than facet <maxLength> value $r->{maxLength}[0]")
+      if ($r->{minLength}[0] > $r->{maxLength}[0]);
+  }
 }
 
 1;

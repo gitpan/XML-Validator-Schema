@@ -32,16 +32,16 @@ isa_ok($foo->{model}, 'XML::Validator::Schema::ModelNode');
 is($foo->{model}->{description}, "(bar,baz)");
 
 # check a sequence of nodes against the model
-eval { $foo->{model}->check_final_model('bar', 'baz') };
+eval { $foo->{model}->check_final_model('', ['bar', 'baz']) };
 is($@, "");
 
-eval { $foo->{model}->check_model('bar') };
+eval { $foo->{model}->check_model('', ['bar']) };
 is($@, "");
 
-eval { $foo->{model}->check_final_model() };
+eval { $foo->{model}->check_final_model('', []) };
 like($@, qr/do not match content model/);
 
-eval { $foo->{model}->check_model('baz') };
+eval { $foo->{model}->check_model('', ['baz']) };
 like($@, qr/does not match content model/);
 
 
@@ -64,16 +64,16 @@ isa_ok($foo->{model}, 'XML::Validator::Schema::ModelNode');
 is($foo->{model}->{description}, "(baz|bar)");
 
 # check a sequence of nodes against the model
-eval { $foo->{model}->check_final_model('bar') };
+eval { $foo->{model}->check_final_model('', ['bar']) };
 is($@, "");
 
-eval { $foo->{model}->check_model('baz') };
+eval { $foo->{model}->check_model('', ['baz']) };
 is($@, "");
 
-eval { $foo->{model}->check_final_model() };
+eval { $foo->{model}->check_final_model('', []) };
 like($@, qr/do not match content model/);
 
-eval { $foo->{model}->check_model('bar', 'baz') };
+eval { $foo->{model}->check_model('', ['bar', 'baz']) };
 like($@, qr/does not match content model/);
 
 # foo contains an 'all' of (bar&baz)
@@ -95,13 +95,13 @@ isa_ok($foo->{model}, 'XML::Validator::Schema::ModelNode');
 is($foo->{model}->{description}, "(bar&baz)");
 
 # check a sequence of nodes against the model
-eval { $foo->{model}->check_final_model('bar', 'baz') };
+eval { $foo->{model}->check_final_model('', ['bar', 'baz']) };
 is($@, "");
 
-eval { $foo->{model}->check_final_model('baz', 'bar') };
+eval { $foo->{model}->check_final_model('', ['baz', 'bar']) };
 is($@, "");
 
-eval { $foo->{model}->check_final_model() };
+eval { $foo->{model}->check_final_model('', []) };
 like($@, qr/do not match content model/);
 
 my $bang = XML::Validator::Schema::ElementNode->parse(
@@ -130,20 +130,20 @@ is($foo->daughters, 4);
 is($foo->{model}->{description}, "(bar,(bang|bop),baz)");
 
 # check a sequence of nodes against the model
-eval { $foo->{model}->check_final_model('bar', 'bang', 'baz') };
+eval { $foo->{model}->check_final_model('', ['bar', 'bang', 'baz']) };
 is($@, "");
 
-eval { $foo->{model}->check_final_model('bar', 'bop', 'baz') };
+eval { $foo->{model}->check_final_model('', ['bar', 'bop', 'baz']) };
 is($@, "");
 
-eval { $foo->{model}->check_model('bar') };
+eval { $foo->{model}->check_model('', ['bar']) };
 is($@, "");
 
-eval { $foo->{model}->check_model('bar', 'bang') };
+eval { $foo->{model}->check_model('', ['bar', 'bang']) };
 is($@, "");
 
-eval { $foo->{model}->check_final_model('bar', 'bang', 'bop', 'baz') };
+eval { $foo->{model}->check_final_model('', ['bar', 'bang', 'bop', 'baz']) };
 like($@, qr/do not match content model/);
 
-eval { $foo->{model}->check_model('baz') };
+eval { $foo->{model}->check_model('', ['baz']) };
 like($@, qr/does not match content model/);

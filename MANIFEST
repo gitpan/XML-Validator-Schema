@@ -1,8 +1,9 @@
 ANNOUNCE
 Changes
+Makefile.PL
 MANIFEST
 MANIFEST.SKIP
-Makefile.PL
+META.yml			Module meta-data (added by MakeMaker)
 README
 Schema.pm
 Schema/Attribute.pm
@@ -20,7 +21,6 @@ Schema/SimpleType.pm
 Schema/SimpleTypeNode.pm
 Schema/TypeLibrary.pm
 Schema/Util.pm
-TODO
 t/01basic.t
 t/02yaml.t
 t/03types.t
@@ -34,8 +34,20 @@ t/attribute_ref.yml
 t/attribute_types.yml
 t/bad_all.yml
 t/bad_attribute_type.yml
+t/bad_constraint_fractionDigits-totalDigits.yml
+t/bad_constraint_length-minLength-maxLength.yml
+t/bad_constraint_minLength-less-than-equal-to-maxLength.yml
 t/bad_restriction.yml
+t/bad_type_fractionDigits.yml
+t/bad_type_length.yml
+t/bad_type_maxLength.yml
+t/bad_type_minLength.yml
+t/bad_type_totalDigits.yml
 t/choice.yml
+t/complex_attr.yml
+t/complex_attr2.yml
+t/country.yml
+t/digits.yml
 t/element_ref.yml
 t/element_type.yml
 t/elementrefintype.yml
@@ -50,6 +62,7 @@ t/lib/YAML/Node.pm
 t/lib/YAML/Transfer.pm
 t/media.yml
 t/min2max2.yml
+t/min_exclusive.yml
 t/multi_level.yml
 t/multiroot.yml
 t/ora_book_1.yml.todo
@@ -66,12 +79,11 @@ t/sequence_with_choice.yml
 t/simple_content.yml
 t/simple_recursion.yml
 t/story.yml
+t/substring.yml
 t/test.xml
 t/test.xsd
 t/two_level.yml
-t/complex_attr.yml
-t/substring.yml
-t/min_exclusive.yml
-t/country.yml
-t/complex_attr2.yml
-META.yml                                 Module meta-data (added by MakeMaker)
+TODO
+t/content_message.yml
+t/07locator.t
+t/bad.xml

@@ -45,5 +45,5 @@ PASS
     <bar/>
   </foo>
 --- >
-FAIL /<bar> does not match content model/
+FAIL /'bar' does not match content model/
 

@@ -147,34 +147,34 @@ sub _qual {
 
 # method to check a final content model
 sub check_final_model {
-    my ($self, @names) = @_;
+    my ($self, $this_name, $names_ref) = @_;
 
     # prepare names for regex
-    my $names = join('', map { '<' . $_ . '>' } @names);
+    my $names = join('', map { '<' . $_ . '>' } @$names_ref);
 
     print STDERR "Checking element string: '$names' against ".
                  "'$self->{final_re_string}'\n" if DEBUG;
 
     # do the match and return an error if necessary
     if ($names !~ /$self->{final_re}/) {
-        _err("Element contents do not match content model '$self->{description}'.");
+        _err("Contents of element '$this_name' do not match content model '$self->{description}'.");
     }
 }
 
 # method to check content model in mid-parse.  will succeed if the set
 # of names constitute at least a prefix of the required content model.
 sub check_model {
-    my ($self, @names) = @_;
+    my ($self, $this_name, $names_ref) = @_;
 
     # prepare names for regex
-    my $names = join('', map { '<' . $_ . '>' } @names);
+    my $names = join('', map { '<' . $_ . '>' } @$names_ref);
 
     print STDERR "Checking element string: '$names' against ".
                  "'$self->{running_re_string}'\n" if DEBUG;
 
     # do the match and blame $names[-1] for failures
     if ($names !~ /$self->{running_re}/) {
-        _err("Element <$names[-1]> does not match content model '$self->{description}'.");
+        _err("Inside element '$this_name', element '$names_ref->[-1]' does not match content model '$self->{description}'.");
     }
 }
 
@@ -274,8 +274,8 @@ sub _combine_desc_parts {
 sub check_model {}
 
 sub check_final_model {
-    my ($self, @names) = @_;
-    $self->SUPER::check_final_model(sort @names);
+    my ($self, $this_name, $names_ref) = @_;
+    $self->SUPER::check_final_model($this_name, [sort @$names_ref]);
 }
 
 sub sort_parts {

@@ -164,7 +164,7 @@ FAIL
   <one_or_two-3 />
  </foo>
 --- >
-FAIL /<zero_or_one-2> does not match/
+FAIL /'zero_or_one-2' does not match/
 
 --- |
  <comp>

@@ -53,7 +53,7 @@ PASS
    <tail/>
  </container>
 --- >
-FAIL /Element <middle> does not match content model '\(\(head_one\|head_two\|\(multi_head\+\)\),middle,tail\)'/
+FAIL /'middle' does not match content model '\(\(head_one\|head_two\|\(multi_head\+\)\),middle,tail\)'/
 
 --- |
  <container>

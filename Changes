@@ -1,5 +1,15 @@
 Revision history for XML::Validator::Schema
 
+1.08 2004-11-04
+   - Added optional support for line and column numbers using
+     XML::Filter::ExceptionLocator and XML::SAX::ExpatXS.
+
+   - Added support for totalDigits and fractionDigits facets of
+     decimal types, excluding double and float. (Toby Long-Leather)
+
+   - Improved content-model validation failure message to include the
+     name of the enclosing element. (Suggested by Jean Flouret)
+
 1.07 2004-09-22
    - New 'debug' option aids in tracking down the source of validation
      failures. (Mathieu)

@@ -148,7 +148,9 @@ sub start_element {
            $name eq 'minInclusive' or 
            $name eq 'minExclusive' or 
            $name eq 'maxInclusive' or 
-           $name eq 'maxExclusive') {
+           $name eq 'maxExclusive' or
+           $name eq 'totalDigits' or 
+           $name eq 'fractionDigits') {
         _err("Found <$name> outside a <simpleType> definition.")
           unless $mother->isa('XML::Validator::Schema::SimpleTypeNode');
         $mother->parse_facet($data);
@@ -241,6 +243,7 @@ sub end_element {
     # end of named simpleType?
     if ($name eq 'simpleType' and 
         $node->isa('XML::Validator::Schema::SimpleTypeNode')) {
+        $node->check_constraints();
         my $type = $node->compile();
         $node->mother->{type} = $type unless $node->{name};
         $node->mother->remove_daughter($node);

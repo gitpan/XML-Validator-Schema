@@ -78,7 +78,7 @@ $BUILTIN{boolean}->restrict(enumeration => "1",
                             enumeration => "false");
 
 $BUILTIN{decimal} = __PACKAGE__->new(name   => 'decimal',
-                                     facets => #TOTALDIGITS|FRACTIONDIGITS|
+                                     facets => TOTALDIGITS|FRACTIONDIGITS|
                                                PATTERN|WHITESPACE|
                                                #ENUMERATION|
                                                MAXINCLUSIVE|MAXEXCLUSIVE|
@@ -406,7 +406,7 @@ sub check {
 
     if ($r->{pattern}) {
         my $pass = 0;
-        foreach my $pattern (@{$r->{pattern}}) {         
+        foreach my $pattern (@{$r->{pattern}}) {
             if ($value =~ /$pattern/) {
                 $pass = 1;
                 last;
@@ -441,6 +441,25 @@ sub check {
         foreach my $max (@{$r->{maxExclusive}}) {
             return (0, "is above maximum allowed, $max")
               if $value >= $max;
+        }
+    }
+
+    if ($r->{totalDigits} or $r->{fractionDigits}) {
+        # strip leading and trailing zeros for numeric constraints
+        (my $digits = $value) =~ s/^([+-]?)0*(\d*\.?\d*?)0*$/$1$2/g;
+
+        if ($r->{totalDigits}) {
+            foreach my $tdigits (@{$r->{totalDigits}}) {
+                return (0, "has more total digits than allowed, $tdigits")
+                  if $digits =~ tr!0-9!! > $tdigits;
+            }
+        }
+
+        if ($r->{fractionDigits}) {
+            foreach my $fdigits (@{$r->{fractionDigits}}) {
+                return (0, "has more fraction digits than allowed, $fdigits")
+                  if $digits =~ /\.\d{$fdigits}\d/;
+            }
         }
     }
 

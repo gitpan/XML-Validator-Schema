@@ -41,7 +41,7 @@ PASS
     <that/>
   </foo>
 --- >
-FAIL /<that> does not match/
+FAIL /'that' does not match/
 
 --- |
   <foo>

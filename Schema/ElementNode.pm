@@ -90,8 +90,11 @@ sub check_daughter {
     _err("Found unexpected <$name> inside <$self->{name}>.  This is not a valid child element.")
       unless $daughter;
 
+    # push on
+    push @{$self->{memory} ||= []}, $name;
+
     # check model
-    $self->{model}->check_model(@{$self->{memory} || []}, $name)
+    $self->{model}->check_model($self->{name}, $self->{memory})
       if $self->{model};
 
     # does this daughter have a valid type?  if not, attempt to elaborate
@@ -105,9 +108,6 @@ sub check_daughter {
         $self->root->complete_ref($daughter);
         ($daughter) = grep { $_->{name} eq $name } ($self->daughters);
     }
-
-    # push on
-    push @{$self->{memory} ||= []}, $name;
 
     return $daughter;
 }
