@@ -1,14 +1,14 @@
 # make sure my example from my use.perl journal really works ;)
 
 --- |
- <schema>
-    <element name="foo" type="foo_type"/>
-    <complexType name="foo_type">
-        <sequence>
-            <element name="foo" type="foo_type" minOccurs="0"/>
-        </sequence>
-    </complexType>
- </schema>
+ <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="foo" type="foo_type"/>
+    <xs:complexType name="foo_type">
+        <xs:sequence>
+            <xs:element name="foo" type="foo_type" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+ </xs:schema>
 
 --- |
       <foo>

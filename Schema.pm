@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 =head1 NAME
 
@@ -97,6 +97,9 @@ if you include elements which are not supported.  However, unsupported
 attributes I<may> be silently ignored.  This should not be
 misconstrued as a feature and will eventually be fixed.
 
+All of these elements must be in the http://www.w3.org/2001/XMLSchema
+namespace, either using a default namespace or a prefix.
+
   <schema>
 
      Supported attributes: targetNamespace, elementFormDefault,
@@ -124,22 +127,91 @@ misconstrued as a feature and will eventually be fixed.
 
     Supported attributes: name
 
+  <simpleType>
+
+    Supported attributes: name
+
+  <restriction>
+
+    Supported attributes: base
+
+  <whiteSpace>
+
+    Supported attributes: value
+
+  <pattern>
+
+    Supported attributes: value
+
+  <enumeration>
+
+    Supported attributes: value
+
+  <length>
+
+    Supported attributes: value
+
+  <minLength>
+
+    Supported attributes: value
+
+  <maxLength>
+
+    Supported attributes: value
+
+  <minInclusive>
+
+    Supported attributes: value
+
+  <minExclusive>
+
+    Supported attributes: value
+
+  <maxInclusive>
+
+    Supported attributes: value
+
+  <maxExclusive>
+
+    Supported attributes: value
+
   <annotation>
 
   <documentation>
 
     Supported attributes: name
 
-=head2 Supported Built-In Types
+=head2 Simple Type Support
 
 Supported built-in types are:
 
   string
+
   boolean
+
+  decimal
+
+   Notes: the totalDigits, fractionDigits and enumeration facets are
+   not supported on decimal or any types derived from decimal (all
+   numeric types).
+
   integer
+
   int
+
   dateTime
+
+    Notes: Although dateTime correctly validates the lexical format it does not
+    offer comparison facets (min*, max*, enumeration).
+
   NMTOKEN
+
+  double
+
+    Notes: Although double correctly validates the lexical format it
+    does not offer comparison facets (min*, max*, enumeration).  Also,
+    minimum and maximum constraints as described in the spec are not
+    checked.
 
 =head2 Miscellaneous Details
 
@@ -157,11 +229,48 @@ Global attributes are not supported.
 
 =item *
 
-Named complex types must be global.
+Patterns specified in pattern simpleType restrictions are Perl regexes
+with none of the XML Schema extensions available.
 
 =item *
 
-Sequence, choice and all elements may not be composed.
+No effort is made to prevent the declaration of facets which "loosen"
+the restrictions on a type.  This is a bug and will be fixed in a
+future release.  Until then types which attempt to loosen restrictions
+on their base class will behave unpredictably.
+
+=item *
+
+Marking a facet "fixed" has no effect.
+
+=item *
+
+SimpleTypes must come after their base types in the schema body.  For
+example, this is ok:
+
+    <xs:simpleType name="foo">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="10"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="foo_bar">
+        <xs:restriction base="foo">
+            <xs:length value="10"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+But this is not:
+
+    <xs:simpleType name="foo_bar">
+        <xs:restriction base="foo">
+            <xs:length value="10"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="foo">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="10"/>
+        </xs:restriction>
+    </xs:simpleType>
 
 =back
 
@@ -173,13 +282,9 @@ Here are a few gotchas that you should know about:
 
 =item *
 
-This module has only been tested with XML::Parser.  It's definitely
-possibly it could break when used with other SAX parsers.
-
-=item *
-
 Line and column numbers are not included in the generated error
-messages.  This should change soon.
+messages.  This will change as soon as XML::Filter::ExceptionLocator
+is ready for action.
 
 =item *
 
@@ -190,6 +295,22 @@ No performance testing or tuning has been done.
 The module doesn't pass-along SAX events and as such isn't ready to be
 used as a real SAX filter.  The example in the L<SYNOPSIS|"SYNOPSIS">
 works, but that's it.
+
+=item *
+
+No Unicode testing has been performed, although it seems possible that
+the module will handle Unicode data correctly.
+
+=item *
+
+Namespace processing is almost entirely missing from the module.
+
+=item *
+
+Little work has been done to ensure that invalid schemas fail
+gracefully.  Until that is done you may want to develop your schemas
+using a more mature validator (like Xerces or XML Spy) before using
+them with this module.
 
 =back
 
@@ -264,10 +385,13 @@ use XML::Validator::Schema::Parser;
 use XML::Validator::Schema::ElementNode;
 use XML::Validator::Schema::RootNode;
 use XML::Validator::Schema::ComplexTypeNode;
+use XML::Validator::Schema::SimpleTypeNode;
+use XML::Validator::Schema::SimpleType;
+use XML::Validator::Schema::TypeLibrary;
+use XML::Validator::Schema::ModelNode;
 use XML::Validator::Schema::Attribute;
 
-# setup an exception class for validation errors
-@XML::SAX::Exception::Validator::ISA = qw(XML::SAX::Exception);
+use XML::Validator::Schema::Util qw(_err);
 
 # create a new validation filter
 sub new {
@@ -296,7 +420,7 @@ sub new {
 sub parse_schema {
     my $self = shift;
 
-    $self->_err("Specified schema file '$self->{file}' does not exist.")
+    _err("Specified schema file '$self->{file}' does not exist.")
       unless -e $self->{file};
 
     # parse the schema file
@@ -327,6 +451,7 @@ sub characters {
     my ($self, $data) = @_;
     my $element = $self->{node_stack}[-1];
     $element->check_contents($data->{Data});
+    $element->{checked_content} = 1;
 }
 
 # finish element checking
@@ -335,18 +460,18 @@ sub end_element {
     my $node_stack = $self->{node_stack};
     my $element = $node_stack->[-1];
 
-    # check min/max within a sequence
-    $element->check_min_max() if $element->{is_sequence} or $element->{is_all};
+    # check empty content if haven't checked yet
+    $element->check_contents('')
+      unless $element->{checked_content};
+    $element->{checked_content} = 0;
+
+    # final model check
+    $element->{model}->check_final_model(@{$element->{memory} || []})
+      if $element->{model};
 
     # done
     $element->clear_memory();
     pop(@$node_stack);
-}
-
-# throw a Validator exception
-sub _err {
-    my $self = shift;
-    XML::SAX::Exception::Validator->throw(Message => shift);
 }
 
 1;

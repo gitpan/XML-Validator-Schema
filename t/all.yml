@@ -2,7 +2,7 @@
 
 --- |
   <?xml version="1.0" encoding="UTF-8"?>
-  <schema>
+  <schema xmlns="http://www.w3.org/2001/XMLSchema">
     <element name="foo">
       <complexType>
         <all>
@@ -53,14 +53,14 @@ PASS
     <that/>
   </foo>
 --- >
-FAIL /[mM]issing required element.*<this>/
+FAIL
 
 --- |
   <foo>
     <this/>
   </foo>
 --- >
-FAIL /[mM]issing required element.*<that>/
+FAIL
 
 --- |
   <foo>
@@ -69,7 +69,7 @@ FAIL /[mM]issing required element.*<that>/
     <that/>
   </foo>
 --- >
-FAIL /too many/
+FAIL
 
 
 

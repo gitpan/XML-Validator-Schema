@@ -3,7 +3,7 @@
 
 --- |
   <?xml version="1.0" encoding="UTF-8"?>
-  <schema>
+  <schema xmlns="http://www.w3.org/2001/XMLSchema">
     <element name="foo" />
   </schema>
 
@@ -17,11 +17,11 @@ PASS
   <?xml version="1.0" encoding="UTF-8"?>
   <fooz />
 --- >
-FAIL /expecting.*<foo>/
+FAIL /unexpected <fooz>/
 
 --- |
   <fooz />
 --- >
-FAIL /expecting.*<foo>/
+FAIL /unexpected <fooz>/
 
 

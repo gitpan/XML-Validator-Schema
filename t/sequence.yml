@@ -2,7 +2,7 @@
 
 --- |
   <?xml version="1.0" encoding="UTF-8"?>
-  <schema>
+  <schema xmlns="http://www.w3.org/2001/XMLSchema">
     <element name="foo">
       <complexType>
         <sequence>
@@ -56,7 +56,8 @@ FAIL
   <one_or_two-3 />
  </foo>
 --- >
-FAIL /missing required.*<one_or_more-1>/
+FAIL /<zero_or_one-2> does not match/
+
 
 
 

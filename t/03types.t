@@ -3,7 +3,23 @@ use strict;
 use warnings;
 
 use Test::More qw(no_plan);
-use XML::Validator::Schema::Type qw(check_type supported_type);
+use XML::Validator::Schema::TypeLibrary;
+my $lib = XML::Validator::Schema::TypeLibrary->new();
+
+sub supported_type {
+    return 1 if $lib->find(name => shift);
+    return 0;
+}
+
+our $LAST_MSG;
+sub check_type {
+    my $type = $lib->find(name => shift);
+    return 0 unless $type;
+    my ($ok, $msg) = $type->check(shift);
+    $LAST_MSG = $msg;
+    return $ok;
+}
+    
 
 ok(supported_type('string'));
 ok(check_type(string => "any ol' thang"));
@@ -46,3 +62,14 @@ ok(check_type(NMTOKEN => ""));
 ok(check_type(NMTOKEN => "sam"));
 ok(check_type(NMTOKEN => "123sam.-_:"));
 ok(not check_type(NMTOKEN => "123sam.-_:!"));
+
+ok(supported_type('double'));
+ok(check_type(double => '-1E4'));
+ok(check_type(double => '1267.43233E12'));
+ok(check_type(double => '12.78e-2'));
+ok(check_type(double => '12'));
+ok(check_type(double => '012'));
+ok(check_type(double => 'INF'));
+ok(not check_type(double => 'A'));
+ok(not check_type(double => 'b10.5'));
+ok(not check_type(double => ''));

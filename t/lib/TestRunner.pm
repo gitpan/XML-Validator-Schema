@@ -12,12 +12,13 @@ my $Test = Test::Builder->new;
 
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = ('test_yml', 'foreach_parser');
+our @EXPORT = ('test_yml', 'foreach_parser', 'test_yml_xerces');
 
 use YAML qw(LoadFile);
 use XML::SAX::ParserFactory;
 use XML::Validator::Schema;
 use XML::SAX;
+use Cwd qw(cwd);
 
 use Data::Dumper;
 
@@ -34,8 +35,6 @@ sub foreach_parser (&) {
     foreach my $pkg (@parsers) {
         $XML::SAX::ParserPackage = $pkg;    
         
-        # make sure the parser is available
-        my $parser = XML::SAX::ParserFactory->parser();
         print STDERR "\n\n                ======> Testing against $pkg ".
           "<======\n\n";
         $tests->();            
@@ -65,7 +64,7 @@ sub test_yml {
             my $parser = XML::SAX::ParserFactory->parser(
               Handler => XML::Validator::Schema->new(file => 
                                                      "t/$prefix.xsd"));
-            $parser->parse_string($xml) 
+            $parser->parse_string($xml);
         };
         my $err = $@;
 
@@ -89,5 +88,61 @@ sub test_yml {
     # cleanup
     unlink "t/$prefix.xsd" or die $!;
 }
+
+sub test_yml_xerces {
+    my $file = shift;
+    my ($prefix) = $file =~ /(\w+)\.yml$/;
+    my @data = LoadFile($file);
+
+    my $old_dir = cwd;
+    chdir("t") or die "Unable to chdir to t/: $!";
+
+    # write out the schema file
+    my $xsd = shift @data;
+    open(my $fh, '>', "$prefix.xsd") or die $!;
+    print $fh $xsd;
+    close($fh) or die $!;
+
+    my $num = 0;
+    while(@data) {
+        my $xml = shift @data;
+        my $result = shift @data;
+        chomp($result);
+        $num++;
+
+        # fixup $xml to refer to schema
+        $xml =~ s!<([^?].*?)(/?)>!<$1 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="$prefix.xsd"$2>!;
+
+        # write the xml into a temp file
+        open(XML, '>', "_$prefix.xml") or die $!;
+        print XML $xml;
+        close XML;
+
+        # run the xml through the parser
+        my $out = `$ENV{XERCES_DOMCOUNT} -v=always -n -s -f _$prefix.xml 2>&1`;
+        my $err;
+        if ($out =~ /Error/) {
+            $out =~ s!Errors occurred, no output available!!g;
+            $out =~ s!^\s+!!;
+            $out =~ s{\s+$}{};
+            $err = $out;
+        }
+
+        if ($result =~ m!^FAIL\s*(?:/(.*?)/)?$!) {
+            print STDERR "==> $ENV{XERCES_DOMCOUNT} -v=always -n -s -f _$prefix.xml:\nout\n" unless $err;
+            $Test->ok($err, "$prefix.yml: block $num should fail validation");
+        } else {
+            print STDERR "==> $ENV{XERCES_DOMCOUNT} -v=always -n -s -f _$prefix.xml:\n$out\n" if $err;
+            $Test->ok(not($err), "$prefix.yml: block $num should pass validation");
+        }
+    }
+
+    # cleanup
+    unlink "$prefix.xsd" or die $!;
+    unlink "_$prefix.xml" or die $!;
+
+    chdir($old_dir);
+}
+
 
 1;

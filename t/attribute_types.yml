@@ -2,16 +2,16 @@
 
 --- |
   <?xml version="1.0" encoding="UTF-8"?>
-  <schema>
+  <schema xmlns="http://www.w3.org/2001/XMLSchema">
     <element name="foo">
       <complexType>
-        <attribute name="no_type" minOccurs="0" />
-        <attribute name="int" type="xs:int" minOccurs="0" />
-        <attribute name="integer" type="integer" minOccurs="0" />
-        <attribute name="name" type="NMTOKEN" minOccurs="0"  />
-        <attribute name="string" type="string" minOccurs="0" />
-        <attribute name="bool" type="boolean" minOccurs="0" />
-        <attribute name="date" type="dateTime" minOccurs="0" />
+        <attribute name="no_type" use="optional" />
+        <attribute name="int" type="int" use="optional" />
+        <attribute name="integer" type="integer" use="optional" />
+        <attribute name="name" type="NMTOKEN" use="optional"  />
+        <attribute name="string" type="string" use="optional" />
+        <attribute name="bool" type="boolean" use="optional" />
+        <attribute name="date" type="dateTime" use="optional" />
       </complexType>
     </element>
   </schema>

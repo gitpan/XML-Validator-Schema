@@ -1,14 +1,17 @@
-ANNOUNCEMENT: XML::Validator::Schema 1.01
+ANNOUNCEMENT: XML::Validator::Schema 1.02
 
 CHANGES
 
-   1.01  2003-09-26
-     - Fixed compatibility with XML::LibXML.
+  1.02  2003-10-01
+   - Added support for composition of <sequence> and <choice> groups.
 
-     - Modified test suite to run tests against all available SAX parsers.
+   - Added support for <simpleType>, both named and anonymous, with
+     mostly complete <restriction> support.
 
-     - Added support for simple <choice> and <all> content modules (no
-       combinations yet).
+   - Added automated test to run test suite against Xerces/C++ if
+     available.  This should keep our tests in line with expected
+     reality.
+
 
 DESCRIPTION
 
@@ -28,4 +31,4 @@ FULL DOCUMENTATION
 
     Available online:
 
-      http://search.cpan.org/~samtregar/XML-Validator-Schema-1.01/Schema.pm
+      http://search.cpan.org/~samtregar/XML-Validator-Schema/Schema.pm

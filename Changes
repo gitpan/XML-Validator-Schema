@@ -10,3 +10,13 @@ Revision history for XML::Validator::Schema
 
    - Added support for simple <choice> and <all> content modules (no
      combinations yet).
+
+1.02  2003-10-01
+   - Added support for composition of <sequence> and <choice> groups.
+
+   - Added support for <simpleType>, both named and anonymous, with
+     mostly complete <restriction> support.
+
+   - Added automated test to run test suite against Xerces/C++ if
+     available.  This should keep our tests in line with expected
+     reality.

@@ -2,7 +2,7 @@
 
 --- |
   <?xml version="1.0" encoding="UTF-8"?>
-  <schema>
+  <schema xmlns="http://www.w3.org/2001/XMLSchema">
     <element name="foo">
       <complexType>
         <sequence>
@@ -27,7 +27,7 @@ PASS
     <bif/>
   </foo>
 --- >
-FAIL /expecting.*<bar>/
+FAIL /unexpected <bif>/
 
 --- |
   <?xml version="1.0" encoding="UTF-8"?>
@@ -45,5 +45,5 @@ PASS
     <bar/>
   </foo>
 --- >
-FAIL /out of order/
+FAIL /<bar> does not match content model/
 
