@@ -28,8 +28,9 @@ sub foreach_parser (&) {
     my @parsers = map { $_->{Name} } (@{XML::SAX->parsers});
     @parsers = ($ENV{XMLVS_TEST_PARSER}) if exists $ENV{XMLVS_TEST_PARSER};
     
-    # remove XML::LibXML::SAX::Parser from this list.  what is that anyway?
-    @parsers = grep { $_ ne 'XML::LibXML::SAX::Parser' } @parsers;
+    # remove XML::LibXML::SAX::Parser and XML::SAX::RTF.  Neither works.
+    @parsers = grep { $_ ne 'XML::LibXML::SAX::Parser' and
+                      $_ ne 'XML::SAX::RTF' } @parsers;
 
     # run tests with all available parsers
     foreach my $pkg (@parsers) {
@@ -62,8 +63,8 @@ sub test_yml {
         # run the xml through the parser
         eval { 
             my $parser = XML::SAX::ParserFactory->parser(
-              Handler => XML::Validator::Schema->new(file => 
-                                                     "t/$prefix.xsd"));
+              Handler => XML::Validator::Schema->new(cache => 1,
+                                                     file => "t/$prefix.xsd"));
             $parser->parse_string($xml);
         };
         my $err = $@;

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use XML::Validator::Schema::Util qw(_attr _err);
+use Carp qw(confess);
 
 =head1 NAME
 
@@ -51,7 +52,7 @@ sub compile {
     my ($self) = shift;
 
     # compile a new type
-    my $base = $self->root->{library}->find(name => $self->{base});
+    my $base = $self->root->{type_library}->find(name => $self->{base});
     my $type = $base->derive();
     
     # smoke 'em if you got 'em
@@ -69,8 +70,8 @@ sub compile {
     }
 
     # register in the library if this is a named type
-    $self->root->{library}->add(name => $self->{name},
-                                type => $type)
+    $self->root->{type_library}->add(name => $self->{name},
+                                     obj  => $type)
       if $self->{name};
 
     return $type;

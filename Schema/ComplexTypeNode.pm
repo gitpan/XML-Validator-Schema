@@ -1,4 +1,7 @@
 package XML::Validator::Schema::ComplexTypeNode;
+use strict;
+use warnings;
+
 use base 'XML::Validator::Schema::ElementNode';
 
 =head1 NAME
@@ -11,5 +14,19 @@ This is an internal module used by XML::Validator::Schema to represent
 complexType nodes derived from XML Schema documents.
 
 =cut
+
+sub compile {
+    my ($self) = shift;
+
+    # compile model if needed
+    if ($self->daughters) {
+        ($self->daughters)[0]->compile;
+    }
+
+    # register in the library if this is a named type
+    $self->root->{type_library}->add(name => $self->{name},
+                                     obj  => $self)
+      if $self->{name};
+}
 
 1;

@@ -1,4 +1,4 @@
 CVS
-Makefile
-Makefile.old
-MANIFEST.bak
+^Makefile$
+^Makefile.old$
+^MANIFEST.bak$

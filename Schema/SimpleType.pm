@@ -111,9 +111,35 @@ $BUILTIN{int} = $BUILTIN{integer}->derive(name => 'int');
 $BUILTIN{int}->restrict(minInclusive => -2147483648, 
                         maxInclusive => 2147483647);
 
-$BUILTIN{NMTOKEN} = $BUILTIN{string}->derive(name => 'NMTOKEN');
-$BUILTIN{NMTOKEN}->restrict(pattern => qr/^[-_.:\w\d]*$/);
+$BUILTIN{unsignedInt} = $BUILTIN{integer}->derive(name => 'unsignedInt');
+$BUILTIN{unsignedInt}->restrict(minInclusive => 0,
+                                maxInclusive => 4294967295);
 
+$BUILTIN{short} = $BUILTIN{int}->derive(name => 'short');
+$BUILTIN{short}->restrict(minInclusive => -32768,
+                        maxInclusive => 32767);
+
+$BUILTIN{unsignedShort} = $BUILTIN{unsignedInt}->derive(name => 
+                                                        'unsignedShort');
+$BUILTIN{unsignedShort}->restrict(maxInclusive => 65535);
+
+$BUILTIN{byte} = $BUILTIN{short}->derive(name => 'byte');
+$BUILTIN{byte}->restrict(minInclusive => -128,
+                         maxInclusive => 127);
+
+$BUILTIN{unsignedByte} = $BUILTIN{unsignedShort}->derive(name => 
+                                                         'unsignedByte');
+$BUILTIN{unsignedByte}->restrict(maxInclusive => 255);
+
+$BUILTIN{normalizedString} = $BUILTIN{string}->derive(name => 
+                                                      'normalizedString');
+$BUILTIN{normalizedString}->restrict(whiteSpace => 'replace');
+
+$BUILTIN{token} = $BUILTIN{normalizedString}->derive(name => 'token');
+$BUILTIN{token}->restrict(whiteSpace => 'collapse');
+
+$BUILTIN{NMTOKEN} = $BUILTIN{token}->derive(name => 'NMTOKEN');
+$BUILTIN{NMTOKEN}->restrict(pattern => qr/^[-.:\w\d]*$/);
 
 ######################
 # SimpleType methods #

@@ -1,16 +1,25 @@
-XML::Validator::Schema version 1.02
+XML::Validator::Schema version 1.03
 
 CHANGES
 
-   1.02  2003-10-01
-   - Added support for composition of <sequence> and <choice> groups.
+   1.03  2003-10-03
 
-   - Added support for <simpleType>, both named and anonymous, with
-     mostly complete <restriction> support.
+   - Added cache mode to reuse schema objects between calls.
 
-   - Added automated test to run test suite against Xerces/C++ if
-     available.  This should keep our tests in line with expected
-     reality.
+   - Added support for more builtin simpleTypes: normalizedString,
+     token, short, byte, unsignedInt, unsignedShort, unsignedByte
+
+   - Added support for element and attribute refs.
+
+   - Added support for simpleContent.
+
+   - Fixed bug preventing <simpleType> within <sequence> or <choice>
+     from working.
+
+   - Fixed NMTOKEN implementation to derive from token instead of string.
+
+   - Fixed bug where test suite would fail if XML::SAX::RTF was
+     installed.
 
 
 DESCRIPTION

@@ -13,9 +13,7 @@ Schema documents.
 
 =cut
 
-
 use base 'XML::SAX::Base';
-use Data::Dumper;
 use XML::Validator::Schema::Util qw(_attr _err);
 
 sub new {
@@ -32,12 +30,18 @@ sub new {
 sub start_element {
     my ($self, $data) = @_;
     my $node_stack = $self->{node_stack};
-    my $mother = $node_stack->[-1];
+    my $mother = @$node_stack ? $node_stack->[-1] : undef;
     my $name = $data->{LocalName};
+
+    # make sure schema comes first
+    _err("Root element must be <schema>, fount <$name> instead.")
+      if  @$node_stack == 0 and $name ne 'schema';
     
     # starting up?
     if ($name eq 'schema') {
-        $self->{in_schema} = 1;
+        my $node = XML::Validator::Schema::RootNode->new;
+        $node->name('<<<ROOT>>>');
+        push(@$node_stack, $node);
 
         # make sure elementFormDefault and attributeFormDefault are
         # 'unqualified' if declared since that's all we're up to
@@ -51,20 +55,55 @@ sub start_element {
         # ignoring targetSchema intentionally.  With both Defaults
         # unqualified there isn't much point looking at it.
     }
-    
+
     # handle element declaration
-    elsif ($name eq 'element') {
-        # create a new node for the element
-        my $node = XML::Validator::Schema::ElementNode->parse($data);
+    elsif ($name eq 'element') {      
+        my $node;
+        if (_attr($data, 'ref')) {
+            $node = XML::Validator::Schema::ElementRefNode->parse($data);
+        } else {
+            # create a new node for the element
+            $node = XML::Validator::Schema::ElementNode->parse($data);
         
+        }
+
         # add to current node's daughter list and become the current node
         $mother->add_daughter($node);
         push @$node_stack, $node;
     }
 
     elsif ($name eq 'attribute') {
-        push @{$mother->{attr} ||= []}, 
-             XML::Validator::Schema::Attribute->parse($data);
+        my $name = _attr($data, 'name');
+        if ($name and $mother->is_root) {
+            # named attribute in the root gets added to the attribute library
+            my $attr = XML::Validator::Schema::Attribute->parse($data);
+            $mother->{attribute_library}->add(name => $attr->{name},
+                                              obj  => $attr);
+        } else {
+            # attribute in an element goes on the attr array
+            push @{$mother->{attr} ||= []}, 
+              XML::Validator::Schema::Attribute->parse($data);
+        }            
+    }
+
+    elsif ($name eq 'simpleContent') {
+        _err("Found simpleContent outside a complexType.")
+          unless $mother->{is_complex} or 
+            $mother->isa('XML::Validator::Schema::ComplexTypeNode');
+
+        $mother->{simple_content} = 1;
+    }
+
+    elsif ($name eq 'extension') {
+        _err("Found illegal <extension> outside simpleContent.")
+          unless $mother->{simple_content};
+
+        # extract simpleType from base
+        my $base = _attr($data, 'base');
+        _err("Found <extension> without required 'base' attribute.")
+          unless $base;
+        $mother->{type_name} = $base;
+        $mother->{unresolved_type} = 1;
     }
 
     elsif ($name eq 'simpleType') {
@@ -125,7 +164,7 @@ sub start_element {
             # this is a named type, parse it into an ComplexTypeNode 
             # and tell Mom about it
             my $node = XML::Validator::Schema::ComplexTypeNode->parse($data);
-            $mother->add_complex_type($node);
+            $mother->add_daughter($node);
             push @$node_stack, $node;
 
             
@@ -172,8 +211,8 @@ sub end_element {
         croak("Module done broke, man.  That element stack ain't empty!")
           unless @$node_stack == 1;
 
-        # complete typing
-        $node_stack->[-1]->complete_types();
+        # finish up
+        $node_stack->[-1]->compile();
 
         return;
     }
@@ -196,9 +235,8 @@ sub end_element {
     # end of a named complexType?
     if ($name eq 'complexType' and 
         $node->isa('XML::Validator::Schema::ComplexTypeNode')) {
-        ($node->daughters)[0]->compile 
-          if $node->daughters and 
-            ($node->daughters)[0]->isa('XML::Validator::Schema::ModelNode');
+        $node->compile;
+        $node->mother->remove_daughter($node);
         pop @{$self->{node_stack}};
         return;
     }

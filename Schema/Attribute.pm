@@ -26,9 +26,18 @@ sub parse {
     my $self = $pkg->new();
 
     my $name = _attr($data, 'name');
-    _err('Found <attribute> without a name.')
-      unless $name;
-    $self->{name} = $name;
+    $self->{name} = $name if $name;
+
+    my $ref  = _attr($data, 'ref');
+    if ($ref) {
+        _err("Illegal combination of 'ref' and 'name' in <attribute>.")
+          if $name;
+        $self->{unresolved_ref} = 1;
+        $self->{name} = $ref;
+    }
+
+    _err("Found <attribute> with neither 'name' nor 'ref'.")
+      unless $name or $ref;
 
     my $type_name = _attr($data, 'type');
     if ($type_name) {

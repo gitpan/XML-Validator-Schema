@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 =head1 NAME
 
@@ -44,11 +44,18 @@ See the L<SCHEMA SUPPORT|"SCHEMA SUPPORT"> section below.
 
 =item *
 
-C<< XML::Validator::Schema->new(file => 'file.xsd') >>
+C<< XML::Validator::Schema->new(file => 'file.xsd', cache => 1) >>
 
 Call this method to create a new XML::Validator:Schema object.  The
-only available option is C<file> which is required and must provide a
+only requied option is C<file> which is required and must provide a
 path to an XML Schema document.
+
+Setting the optional C<cache> parameter to 1 causes
+XML::Validator::Schema to keep a copy of the schema parse tree in
+memory.  The tree will be reused on subsequent calls with the same
+C<file> parameter, as long as the mtime on the schema file hasn't
+changed.  This can save a lot of time if you're validating many
+documents against a single schema.
 
 Since XML::Validator::Schema is a SAX filter you will normally pass
 this object to a SAX parser:
@@ -60,6 +67,8 @@ Then you can proceed to validate files using the parser:
 
   eval { $parser->parse_uri('foo.xml') };
   die "File failed validation: $@" if $@;
+
+
 
 =back
 
@@ -111,11 +120,11 @@ namespace, either using a default namespace or a prefix.
         
   <element name="foo">
 
-     Supported attributes: name, type, minOccurs, maxOccurs
+     Supported attributes: name, type, minOccurs, maxOccurs, ref
 
   <attribute>
 
-     Supported attributes: name, type, use
+     Supported attributes: name, type, use, ref
 
   <sequence>
 
@@ -126,6 +135,14 @@ namespace, either using a default namespace or a prefix.
   <complexType>
 
     Supported attributes: name
+
+  <simpleContent>
+
+  <extension>
+
+    Supported attributes: base
+
+    Notes: only allowed inside <simpleContent>
 
   <simpleType>
 
@@ -187,6 +204,15 @@ Supported built-in types are:
 
   string
 
+  normalizedString
+
+  token
+
+  NMTOKEN
+
+   Notes: the spec says NMTOKEN should only be used for attributes,
+   but this rule is not enforced.
+
   boolean
 
   decimal
@@ -199,12 +225,20 @@ Supported built-in types are:
 
   int
 
+  short
+
+  byte
+
+  unsignedInt
+
+  unsignedShort
+
+  unsignedByte
+
   dateTime
 
     Notes: Although dateTime correctly validates the lexical format it does not
     offer comparison facets (min*, max*, enumeration).
-
-  NMTOKEN
 
   double
 
@@ -221,14 +255,6 @@ Other known devations from the specification:
 
 =item *
 
-Only a single global element is allowed.
-
-=item *
-
-Global attributes are not supported.
-
-=item *
-
 Patterns specified in pattern simpleType restrictions are Perl regexes
 with none of the XML Schema extensions available.
 
@@ -238,6 +264,15 @@ No effort is made to prevent the declaration of facets which "loosen"
 the restrictions on a type.  This is a bug and will be fixed in a
 future release.  Until then types which attempt to loosen restrictions
 on their base class will behave unpredictably.
+
+=item *
+
+No attempt has been made to exclude content models which are
+ambiguous, as the spec demands.  In fact, I don't see any compelling
+reason to do so, aside from strict compliance to the spec.  The
+content model implementaton uses regular expressions which should be
+able to handle loads of ambiguity without significant performance
+problems.
 
 =item *
 
@@ -338,6 +373,14 @@ check out a copy of the CVS tree:
 
   http://sourceforge.net/cvs/?group_id=89764
 
+=head1 CREDITS
+
+The following people have contributed bug reports, test cases and/or
+code:
+
+  Plankton
+  David Wheeler
+
 =head1 AUTHOR
 
 Sam Tregar <sam@tregar.com>
@@ -383,15 +426,19 @@ use XML::SAX::ParserFactory; # needed to parse the schema documents
 
 use XML::Validator::Schema::Parser;
 use XML::Validator::Schema::ElementNode;
+use XML::Validator::Schema::ElementRefNode;
 use XML::Validator::Schema::RootNode;
 use XML::Validator::Schema::ComplexTypeNode;
 use XML::Validator::Schema::SimpleTypeNode;
 use XML::Validator::Schema::SimpleType;
 use XML::Validator::Schema::TypeLibrary;
+use XML::Validator::Schema::ElementLibrary;
+use XML::Validator::Schema::AttributeLibrary;
 use XML::Validator::Schema::ModelNode;
 use XML::Validator::Schema::Attribute;
 
 use XML::Validator::Schema::Util qw(_err);
+our %CACHE;
 
 # create a new validation filter
 sub new {
@@ -402,13 +449,33 @@ sub new {
     # check options
     croak("Missing required 'file' option.") unless $self->{file};
 
-    # create an empty element stack
-    $self->{node_stack} = [ $self->{element_tree} = 
-                               XML::Validator::Schema::RootNode->new ];
-    $self->{node_stack}[0]->name('<<<SCHEMA ROOT>>>');
+    # if caching is on, check the cache
+    if ($self->{cache} and
+        exists $CACHE{$self->{file}} and 
+        $CACHE{$self->{file}}{mtime} == (stat($self->{file}))[9]) {
 
-    # load the schema, filling in the element tree
-    $self->parse_schema();
+        # load cached object
+        $self->{node_stack} = [ @{$CACHE{$self->{file}}{node_stack}} ];
+
+        # clean up any lingering state from the last use of this tree
+        $self->{node_stack}[0]->walk_down(
+           { callback => sub { 
+                 $_[0]->clear_memory 
+                   if $_[0]->can('clear_memory') } });
+
+    } else {
+        # create an empty element stack
+        $self->{node_stack} = [];
+
+        # load the schema, filling in the element tree
+        $self->parse_schema();
+
+        # store to cache
+        if ($self->{cache}) {
+            $CACHE{$self->{file}}{mtime} = (stat($self->{file}))[9];
+            $CACHE{$self->{file}}{node_stack} = $self->{node_stack};
+        }
+    }
 
     # buffer text for convenience
     my $bf = XML::Filter::BufferText->new( Handler => $self );
@@ -416,7 +483,7 @@ sub new {
     return $bf;
 }
 
-# parse an XML schema document, filling $self->{element_tree}
+# parse an XML schema document, filling $self->{node_stack}
 sub parse_schema {
     my $self = shift;
 

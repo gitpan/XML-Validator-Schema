@@ -41,6 +41,38 @@ ok(check_type(int => "-2147483648"));
 ok(not check_type(int => "12147483648"));
 ok(not check_type(int => "-12147483648"));
 
+ok(supported_type('unsignedInt'));
+ok(check_type(unsignedInt => "1"));
+ok(not check_type(unsignedInt => "-1"));
+ok(check_type(unsignedInt => "2147483647"));
+ok(not check_type(unsignedInt => "-2147483648"));
+ok(not check_type(unsignedInt => "12147483648"));
+ok(not check_type(unsignedInt => "-12147483648"));
+
+ok(supported_type('short'));
+ok(check_type(short => "1"));
+ok(check_type(short => "-1"));
+ok(not check_type(short => "2147483647"));
+ok(not check_type(short => "-2147483648"));
+
+ok(supported_type('unsignedShort'));
+ok(check_type(unsignedShort => "1"));
+ok(not check_type(unsignedShort => "-1"));
+ok(not check_type(unsignedShort => "2147483647"));
+ok(not check_type(unsignedShort => "-2147483648"));
+
+ok(supported_type('byte'));
+ok(check_type(byte => "1"));
+ok(check_type(byte => "-1"));
+ok(not check_type(byte => "255"));
+ok(not check_type(byte => "-255"));
+
+ok(supported_type('unsignedByte'));
+ok(check_type(unsignedByte => "1"));
+ok(not check_type(unsignedByte => "-1"));
+ok(check_type(unsignedByte => "255"));
+ok(not check_type(unsignedByte => "-255"));
+
 ok(supported_type('boolean'));
 ok(check_type(boolean => "0"));
 ok(check_type(boolean => "1"));
@@ -62,6 +94,16 @@ ok(check_type(NMTOKEN => ""));
 ok(check_type(NMTOKEN => "sam"));
 ok(check_type(NMTOKEN => "123sam.-_:"));
 ok(not check_type(NMTOKEN => "123sam.-_:!"));
+
+ok(supported_type('normalizedString'));
+ok(check_type(normalizedString => ""));
+ok(check_type(normalizedString => "sam"));
+ok(check_type(normalizedString => "\n\ns\na\nm\n\n"));
+
+ok(supported_type('token'));
+ok(check_type(normalizedString => ""));
+ok(check_type(normalizedString => "sam"));
+ok(check_type(normalizedString => "\n\ns\na\nm\n\n"));
 
 ok(supported_type('double'));
 ok(check_type(double => '-1E4'));

@@ -12,13 +12,21 @@
   </schema>
 
 --- |
-  <?xml version="1.0" encoding="UTF-8"?>
   <foo baz="1"/>
 --- >
 PASS
 
 --- |
-  <?xml version="1.0" encoding="UTF-8"?>
+  <foo bar="50" baz="1"/>
+--- >
+PASS
+
+--- |
   <foo />
 --- >
 FAIL /[Mm]issing required attribute/
+
+--- |
+  <foo bing="bomb" baz="1"/>
+--- >
+FAIL

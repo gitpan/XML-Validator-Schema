@@ -12,6 +12,7 @@
              <xs:element name="five" type="three_to_five_chars" minOccurs="0" maxOccurs="unbounded"/>
              <xs:element name="six" type="ten_chars_ws" minOccurs="0" maxOccurs="unbounded"/>
              <xs:element name="seven" type="multi_pattern" minOccurs="0" maxOccurs="unbounded"/>
+             <xs:element name="eight" type="ten_chars_normalized" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
        </xs:complexType>
     </xs:element>     
@@ -43,14 +44,19 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="ten_chars_ws">
-        <xs:restriction base="ten_chars">
-            <xs:whiteSpace value="collapse"/>
+        <xs:restriction base="xs:token">
+            <xs:length value="10"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="multi_pattern">
         <xs:restriction base="xs:string">
             <xs:pattern value="foo\(\d+\)"/>
             <xs:pattern value="bar\[\S+\]"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="ten_chars_normalized">
+        <xs:restriction base="xs:normalizedString">
+            <xs:length value="10" />
         </xs:restriction>
     </xs:simpleType>
 
@@ -233,6 +239,36 @@ PASS
 --- |
  <container>
    <seven>foo(10)bar[TENTHENTEN]</seven> 
+ </container>
+--- >
+FAIL /[iI]llegal value/
+
+
+--- |
+ <container>
+   <eight>0123456789</eight>
+ </container>
+--- >
+PASS
+
+--- |
+ <container>
+   <eight>012 45 78 </eight>
+ </container>
+--- >
+PASS
+
+
+--- |
+ <container>
+   <eight> 12 45 78 </eight>
+ </container>
+--- >
+PASS
+
+--- |
+ <container>
+   <eight> 0123456789 </eight>
  </container>
 --- >
 FAIL /[iI]llegal value/

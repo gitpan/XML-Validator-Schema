@@ -76,7 +76,7 @@ sub check_contents {
 
     # mixed content isn't supported, so all complex elements must be
     # element only or have nothing but whitespace between the elements
-    if ($self->{is_complex} and $contents =~ /\S/) {
+    elsif ($self->{is_complex} and $contents =~ /\S/) {
         _err("Illegal character data found in element <$self->{name}>.");
     }
 }
@@ -84,9 +84,6 @@ sub check_contents {
 # check if a given name is a legal child, and return it if it is
 sub check_daughter {
     my ($self, $name) = @_;
-    #print STDERR "CHECKING for $name inside $self->{name}\n";
-    #use Data::Dumper;
-    #print STDERR Dumper($self);
     my ($daughter) = grep { $_->{name} eq $name } ($self->daughters);
 
     # doesn't even exist?
@@ -158,13 +155,8 @@ sub check_attributes {
 
 # forget about the past
 sub clear_memory {
-    delete shift->{memory};
+    delete $_[0]->{memory};
 }
 
-# describe the expected daughters of this node
-sub expected_daughters {
-    my $self = shift;
-    return join(' or ', map { "<" . $_->{name} . ">" } $self->daughters);   
-}
 
 1;
