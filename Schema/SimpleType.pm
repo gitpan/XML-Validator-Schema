@@ -32,36 +32,6 @@ class.
 use Carp qw(croak);
 use XML::Validator::Schema::Util qw(XSD _err);
 
-###############################################################################################
-### begin code taken from Date::Simple
-###############################################################################################
-sub leap_year {
-    my $y = shift;
-    return (($y%4==0) and ($y%400==0 or $y%100!=0)) || 0;
-}
- 
-my @days_in_month = (
- [0,31,28,31,30,31,30,31,31,30,31,30,31],
- [0,31,29,31,30,31,30,31,31,30,31,30,31],
-);
- 
-sub days_in_month ($$) {
-    my ($y,$m) = @_;
-    return $days_in_month[leap_year($y)][$m];
-}
- 
-my $validate = sub ($$$) {
-    my ($y, $m, $d)= @_;
-    # any +ve integral year is valid
-    return qr{(?!)} if $y != abs int $y;
-    return qr{(?!)} unless 1 <= $m and $m <= 12;
-    return qr{(?!)} unless 1 <= $d and $d <= $days_in_month[leap_year($y)][$m];
-    return qr{(?=)};
-};
-###############################################################################################
-### end code taken from Date::Simple
-###############################################################################################
-
 # facet support bit-patterns
 use constant LENGTH         => 0b0000000000000001;
 use constant MINLENGTH      => 0b0000000000000010;
@@ -86,6 +56,7 @@ our %FACET = (length         => LENGTH,
               maxInclusive   => MAXINCLUSIVE,  
               maxExclusive   => MAXEXCLUSIVE, 
               minInclusive   => MININCLUSIVE, 
+              minExclusive   => MINEXCLUSIVE, 
               totalDigits    => TOTALDIGITS, 
               fractionDigits => FRACTIONDIGITS);
 
@@ -178,7 +149,7 @@ $BUILTIN{date} = __PACKAGE__->new(name   => 'date',
                                                 #MININCLUSIVE|MINEXCLUSIVE,
                                      );
 $BUILTIN{date}->restrict(pattern => 
-	qr /^[-]?(\d{4,})-(\d\d)-(\d\d)(??{$validate->($1,$2,$3)})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/);
+	qr /^[-]?(\d{4,})-(\d\d)-(\d\d)(??{_validate_date($1,$2,$3)})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/);
 		
 
 $BUILTIN{gYearMonth} = __PACKAGE__->new(name   => 'gYearMonth', 
@@ -206,7 +177,7 @@ $BUILTIN{gMonthDay} = __PACKAGE__->new(name   => 'gMonthDay',
                                                 #MININCLUSIVE|MINEXCLUSIVE,
                                      );
 $BUILTIN{gMonthDay}->restrict(pattern => 
-	qr /^--(\d{2,})-(\d\d)(??{$validate->(1999,$1,$2)})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/ );
+	qr /^--(\d{2,})-(\d\d)(??{_validate_date(1999,$1,$2)})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/ );
 
 $BUILTIN{gDay} = __PACKAGE__->new(name   => 'gDay', 
                                       facets => PATTERN|WHITESPACE
@@ -476,5 +447,29 @@ sub check {
     return (1);
 }
 
+#
+# begin code taken from Date::Simple
+#
+
+my @days_in_month = ([0,31,28,31,30,31,30,31,31,30,31,30,31],
+                     [0,31,29,31,30,31,30,31,31,30,31,30,31]);
+
+sub _validate_date ($$$) {
+    my ($y, $m, $d)= @_;
+    # any +ve integral year is valid
+    return qr{(?!)} if $y != abs int $y;
+    return qr{(?!)} unless 1 <= $m and $m <= 12;
+    return qr{(?!)} unless 1 <= $d and $d <=$days_in_month[_leap_year($y)][$m];
+    return qr{(?=)};
+}
+
+sub _leap_year {
+    my $y = shift;
+    return (($y%4==0) and ($y%400==0 or $y%100!=0)) || 0;
+}
+
+#
+# end code taken from Date::Simple
+#
 
 1;

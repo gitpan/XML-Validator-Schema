@@ -113,6 +113,8 @@ sub complete_type {
         # replace the current element with one based on the complex node
         my $new_node = $type->copy_at_and_under;
         $new_node->name($element->{name});
+        $new_node->{attr} = [ @{ $new_node->{attr} || [] }, 
+                              @{ $element->{attr} || [] } ];
         $element->replace_with($new_node);
 
 

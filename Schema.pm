@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 =head1 NAME
 
@@ -47,8 +47,8 @@ See the L<SCHEMA SUPPORT|"SCHEMA SUPPORT"> section below.
 C<< XML::Validator::Schema->new(file => 'file.xsd', cache => 1) >>
 
 Call this method to create a new XML::Validator:Schema object.  The
-only requied option is C<file> which is required and must provide a
-path to an XML Schema document.
+only required option is C<file> which must provide a path to an XML
+Schema document.
 
 Setting the optional C<cache> parameter to 1 causes
 XML::Validator::Schema to keep a copy of the schema parse tree in
@@ -68,7 +68,13 @@ Then you can proceed to validate files using the parser:
   eval { $parser->parse_uri('foo.xml') };
   die "File failed validation: $@" if $@;
 
-
+Setting the optional C<debug> parameter to 1 causes
+XML::Validator::Schema to output elements and associated attributes
+while parsing and validating the XML document. This provides useful
+information on the position where the validation failed.  Eventually
+XML::Validator::Schema will include filenames and line-numbers when
+used with an XML::SAX parser which provides document-locator support,
+but until then this should help find locate source of an error.
 
 =back
 
@@ -472,11 +478,15 @@ use XML::Validator::Schema::Attribute;
 use XML::Validator::Schema::Util qw(_err);
 our %CACHE;
 
+our $DEBUG = 0;
+
 # create a new validation filter
 sub new {
     my $pkg  = shift;
     my $opt  = (@_ == 1)  ? { %{shift()} } : {@_};
     my $self = bless $opt, $pkg;
+
+    $self->{debug} = exists $self->{debug} ? $self->{debug} : $DEBUG;
 
     # check options
     croak("Missing required 'file' option.") unless $self->{file};
@@ -537,11 +547,22 @@ sub start_element {
     my $node_stack = $self->{node_stack};
     my $element = $node_stack->[-1];
 
+    print STDERR "  " x scalar(@{$node_stack}), " o ", $name, "\n" 
+      if $self->{debug};
+
     # check that this alright
     my $daughter = $element->check_daughter($name);
 
     # check attributes
     $daughter->check_attributes($data->{Attributes});
+    
+    if ($self->{debug}) {
+        foreach my $att ( keys %{ $data->{Attributes} } ) {
+            print STDERR "  " x (scalar(@{$node_stack}) + 2), " - ", 
+              $data->{Attributes}->{$att}->{Name}, " = ", 
+                $data->{Attributes}->{$att}->{Value}, "\n" 
+            }
+    }
 
     # enter daughter node
     push(@$node_stack, $daughter);

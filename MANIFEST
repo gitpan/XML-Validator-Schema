@@ -69,3 +69,9 @@ t/story.yml
 t/test.xml
 t/test.xsd
 t/two_level.yml
+t/complex_attr.yml
+t/substring.yml
+t/min_exclusive.yml
+t/country.yml
+t/complex_attr2.yml
+META.yml                                 Module meta-data (added by MakeMaker)

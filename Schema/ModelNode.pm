@@ -83,7 +83,7 @@ sub compile {
         $self->{final_re} = qr/^$final_re$/;
         $self->{running_re} = qr/^$running_re$/;
     };
-    croak("Problem compile content model '<$root->{name}>' into regular expression: $@") if $@;
+    croak("Problem compiling content model '<$root->{name}>' into regular expression: $@") if $@;
 
     # finished
     $self->clear_daughters;

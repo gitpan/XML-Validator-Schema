@@ -1,0 +1,15 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         XML-Validator-Schema
+version:      1.07
+version_from: Schema.pm
+installdirs:  site
+requires:
+    Carp:                          0
+    Test::More:                    0.47
+    Tree::DAG_Node:                0
+    XML::Filter::BufferText:       0
+    XML::SAX:                      0.12
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.17

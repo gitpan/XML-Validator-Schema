@@ -1,20 +1,21 @@
-XML::Validator::Schema version 1.06
+XML::Validator::Schema version 1.07
 
 CHANGES
+  
+ 1.07 2004-09-22
 
-   1.06 2004-04-21
+   - New 'debug' option aids in tracking down the source of validation
+     failures. (Mathieu)
 
-   - Fixed bug in <all> support with minOccurs="0" contents. 
-     (josef@clubphoto.com)
+   - Fixed bug which prevented minExclusive from working. 
+     (h.bridge@fasol.fujitsu.com)
 
-   - Fixed bug where minOccurs of 2 or greater wouldn't work
-     correctly.
+   - Fixed bug which prevented attribute types from working in some
+     cases.
 
-   - Added support for positiveInteger, negativeInteger,
-     nonPositiveInteger and nonNegativeInteger.  (adamk@ali.as)
+   - Fixed bug which prevented complex types from adding new
+     attributes to existing complex types. (michael.jacob@schering.de)
 
-   - Fixed bug where references to elements inside complex types
-     wouldn't get resolved.
 
 DESCRIPTION
 
@@ -70,7 +71,7 @@ AUTHOR
 
 COPYRIGHT AND LICENSE
 
-    Copyright (C) 2002 Sam Tregar
+    Copyright (C) 2002, 2003, 2004 Sam Tregar
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl 5 itself.

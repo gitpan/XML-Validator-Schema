@@ -143,6 +143,11 @@ sub check_attributes {
         _err("Illegal attribute '$name' found in <$self->{name}>.")
           unless $obj;
         $saw{$name} = 1;
+        
+        # does this obj have an incomplete type?  complete it
+        if ($obj->{unresolved_type}) {
+            $self->root->complete_attr_type($obj);
+        }
 
         # check value, if attribute is typed
         if ($obj->{type}) {           

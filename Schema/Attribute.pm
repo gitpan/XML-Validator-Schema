@@ -44,7 +44,7 @@ sub parse {
         $self->{unresolved_type} = 1;
         $self->{type_name} = $type_name;
     }
-
+    
     # load use, defaults to optional
     my $use = _attr($data, 'use') || 'optional';
     _err("Invalid 'use' value in <attribute name='$name'>: '$use'.") 

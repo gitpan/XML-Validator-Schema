@@ -1,5 +1,18 @@
 Revision history for XML::Validator::Schema
 
+1.07 2004-09-22
+   - New 'debug' option aids in tracking down the source of validation
+     failures. (Mathieu)
+
+   - Fixed bug which prevented minExclusive from working. 
+     (h.bridge@fasol.fujitsu.com)
+
+   - Fixed bug which prevented attribute types from working in some
+     cases.
+
+   - Fixed bug which prevented complex types from adding new
+     attributes to existing complex types. (michael.jacob@schering.de)
+
 1.06 2004-04-21
    - Fixed bug in <all> support with minOccurs="0" contents. 
      (josef@clubphoto.com)
