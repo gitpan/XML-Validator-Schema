@@ -1,0 +1,31 @@
+# test a schema with a recursive definition
+
+--- |
+ <schema>
+    <element name="category">
+        <complexType>
+            <sequence>
+                <element name="element" type="element_type"/>
+            </sequence>
+        </complexType>
+    </element>
+    <complexType name="element_type">
+        <sequence>
+            <element name="data" type="string"/>
+            <element name="element" type="element_type" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+ </schema>
+
+--- |
+  <category>
+    <element>
+      <data>foo</data>
+      <element>
+        <data>bar</data>
+      </element>
+    </element>
+  </category>
+--- >
+PASS
+

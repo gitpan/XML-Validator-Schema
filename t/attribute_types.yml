@@ -1,0 +1,33 @@
+# test attribute types
+
+--- |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <schema>
+    <element name="foo">
+      <complexType>
+        <attribute name="no_type" minOccurs="0" />
+        <attribute name="int" type="xs:int" minOccurs="0" />
+        <attribute name="integer" type="integer" minOccurs="0" />
+        <attribute name="name" type="NMTOKEN" minOccurs="0"  />
+        <attribute name="string" type="string" minOccurs="0" />
+        <attribute name="bool" type="boolean" minOccurs="0" />
+        <attribute name="date" type="dateTime" minOccurs="0" />
+      </complexType>
+    </element>
+  </schema>
+
+--- |
+  <foo no_type="foo"/>
+--- >
+PASS
+
+--- |
+  <foo int="1" integer="1" name="foo" string="..." bool="true" date="1977-08-02T20:02:00"/>
+--- >
+PASS
+
+--- |
+  <foo int="what are you looking at?" />
+--- >
+FAIL /[Ii]llegal value/
+

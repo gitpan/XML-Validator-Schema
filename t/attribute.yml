@@ -1,0 +1,24 @@
+# simple schema with a single element with two attributes
+
+--- |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <schema>
+    <element name="foo">
+      <complexType>
+        <attribute name="bar" />
+        <attribute name="baz" use="required" />
+      </complexType>
+    </element>
+  </schema>
+
+--- |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <foo baz="1"/>
+--- >
+PASS
+
+--- |
+  <?xml version="1.0" encoding="UTF-8"?>
+  <foo />
+--- >
+FAIL /[Mm]issing required attribute/

@@ -1,0 +1,26 @@
+ANNOUNCEMENT: XML::Validator::Schema 1.00
+
+CHANGES
+
+   1.00  2003-09-25
+      - First Release.
+
+DESCRIPTION
+
+    This module allows you to validate XML documents against a W3C XML
+    Schema. This module does not implement the full W3C XML Schema
+    recommendation (http://www.w3.org/XML/Schema), but a useful subset. See
+    the SCHEMA SUPPORT section in the module documention.
+
+DOWNLOAD
+
+    You can install XML::Validator::Schema from CPAN, or download it
+    from SourceForge:
+
+      http://sourceforge.net/project/showfiles.php?group_id=89764
+
+FULL DOCUMENTATION
+
+    Available online:
+
+      http://search.cpan.org/~samtregar/XML-Validator-Schema-1.00/Schema.pm
