@@ -63,8 +63,7 @@ sub start_element {
             $node = XML::Validator::Schema::ElementRefNode->parse($data);
         } else {
             # create a new node for the element
-            $node = XML::Validator::Schema::ElementNode->parse($data);
-        
+            $node = XML::Validator::Schema::ElementNode->parse($data);        
         }
 
         # add to current node's daughter list and become the current node

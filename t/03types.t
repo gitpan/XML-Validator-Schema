@@ -26,12 +26,49 @@ ok(check_type(string => "any ol' thang"));
 ok(check_type(string => ""));
 
 ok(supported_type('integer'));
+ok(check_type(integer => "0"));
 ok(check_type(integer => "1"));
 ok(check_type(integer => "-1"));
 ok(check_type(integer => "2147483647"));
 ok(check_type(integer => "-2147483648"));
 ok(check_type(integer => "12147483648"));
 ok(check_type(integer => "-12147483648"));
+
+ok(supported_type('nonPositiveInteger'));
+ok(    check_type(nonPositiveInteger => "0"));
+ok(not check_type(nonPositiveInteger => "1"));
+ok(    check_type(nonPositiveInteger => "-1"));
+ok(not check_type(nonPositiveInteger => "2147483647"));
+ok(    check_type(nonPositiveInteger => "-2147483648"));
+ok(not check_type(nonPositiveInteger => "12147483648"));
+ok(    check_type(nonPositiveInteger => "-12147483648"));
+
+ok(supported_type('nonNegativeInteger'));
+ok(    check_type(nonNegativeInteger => "0"));
+ok(    check_type(nonNegativeInteger => "1"));
+ok(not check_type(nonNegativeInteger => "-1"));
+ok(    check_type(nonNegativeInteger => "2147483647"));
+ok(not check_type(nonNegativeInteger => "-2147483648"));
+ok(    check_type(nonNegativeInteger => "12147483648"));
+ok(not check_type(nonNegativeInteger => "-12147483648"));
+
+ok(supported_type('positiveInteger'));
+ok(not check_type(positiveInteger => "0"));
+ok(    check_type(positiveInteger => "1"));
+ok(not check_type(positiveInteger => "-1"));
+ok(    check_type(positiveInteger => "2147483647"));
+ok(not check_type(positiveInteger => "-2147483648"));
+ok(    check_type(positiveInteger => "12147483648"));
+ok(not check_type(positiveInteger => "-12147483648"));
+
+ok(supported_type('negativeInteger'));
+ok(not check_type(negativeInteger => "0"));
+ok(not check_type(negativeInteger => "1"));
+ok(    check_type(negativeInteger => "-1"));
+ok(not check_type(negativeInteger => "2147483647"));
+ok(    check_type(negativeInteger => "-2147483648"));
+ok(not check_type(negativeInteger => "12147483648"));
+ok(    check_type(negativeInteger => "-12147483648"));
 
 ok(supported_type('int'));
 ok(check_type(int => "1"));

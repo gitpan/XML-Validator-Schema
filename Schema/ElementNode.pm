@@ -99,6 +99,12 @@ sub check_daughter {
         $self->root->complete_type($daughter);
         ($daughter) = grep { $_->{name} eq $name } ($self->daughters);
     }
+    
+    # is this daughter a dangling ref?  if so, complete it
+    if ($daughter->{unresolved_ref}) {
+        $self->root->complete_ref($daughter);
+        ($daughter) = grep { $_->{name} eq $name } ($self->daughters);
+    }
 
     # push on
     push @{$self->{memory} ||= []}, $name;

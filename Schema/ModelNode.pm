@@ -104,7 +104,11 @@ sub _compile {
             my $qual = _qual($d->{min}, $d->{max});
             my $re = length($qual) ? '(?:' . $re_name . ")$qual" : $re_name;
             push @final_parts, $re;
-            push @running_parts, $re;
+
+            my $running_qual = _qual($d->{min} eq '0' ? 0 : 1, $d->{max});
+            my $running_re = length($running_qual) ? '(?:' . $re_name . ")$running_qual" : $re_name;
+            push @running_parts, $running_re;
+
             push @desc_parts, $d->{name} . $qual;
 
             # push onto root's daughter list
@@ -194,8 +198,7 @@ sub _combine_running_parts {
     my $re = join('', map { "(?:$_" } @$parts) . 
              ")?" x @$parts;
     $re =~ s!\?$!!;
-    $re .= XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
-
+    $re .= XML::Validator::Schema::ModelNode::_qual($self->{min},$self->{max});
     return $re;
 }
 
@@ -250,12 +253,12 @@ use base 'XML::Validator::Schema::SequenceModelNode';
 
 sub _combine_final_parts {
     my ($self, $parts) = @_;
-    return $self->SUPER::_combine_final_parts([sort @$parts]);
+    return $self->SUPER::_combine_final_parts([sort sort_parts @$parts]);
 }
 
 sub _combine_running_parts {
     my ($self, $parts) = @_;
-    return $self->SUPER::_combine_running_parts([sort @$parts]);
+    return $self->SUPER::_combine_running_parts([sort sort_parts @$parts]);
 }
 
 sub _combine_desc_parts {
@@ -273,6 +276,12 @@ sub check_model {}
 sub check_final_model {
     my ($self, @names) = @_;
     $self->SUPER::check_final_model(sort @names);
+}
+
+sub sort_parts {
+    my( $a_element ) = $a =~ /<(.*?)\\>/;
+    my( $b_element ) = $b =~ /<(.*?)\\>/;
+    $a_element cmp $b_element;
 }
 
 1;

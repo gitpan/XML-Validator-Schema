@@ -103,7 +103,7 @@ sub complete_type {
     # isn't there?
     _err("Element '<$element->{name}>' has unrecognized type '$type_name'.") 
       unless $type;
-    
+
 
     if ($type->isa('XML::Validator::Schema::ComplexTypeNode')) {
         # can't have daughters for this to work

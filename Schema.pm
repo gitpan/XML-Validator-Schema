@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 =head1 NAME
 
@@ -240,6 +240,14 @@ Supported built-in types are:
   unsignedShort
 
   unsignedByte
+
+  positiveInteger
+
+  negativeInteger
+
+  nonPositiveInteger
+
+  nonNegativeInteger
 
   dateTime
 

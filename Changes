@@ -1,25 +1,43 @@
 Revision history for XML::Validator::Schema
 
-1.00  2003-09-25
-   - First Release.
+1.06 2004-04-21
+   - Fixed bug in <all> support with minOccurs="0" contents. 
+     (josef@clubphoto.com)
 
-1.01  2003-09-26
-   - Fixed compatibility with XML::LibXML.
+   - Fixed bug where minOccurs of 2 or greater wouldn't work
+     correctly.
 
-   - Modified test suite to run tests against all available SAX parsers.
+   - Added support for positiveInteger, negativeInteger,
+     nonPositiveInteger and nonNegativeInteger.  (adamk@ali.as)
 
-   - Added support for simple <choice> and <all> content modules (no
-     combinations yet).
+   - Fixed bug where references to elements inside complex types
+     wouldn't get resolved.
 
-1.02  2003-10-01
-   - Added support for composition of <sequence> and <choice> groups.
+1.05 2003-11-13 
+   - Added support for more simple types (Russell B Cecala) :
+         float
+         duration
+         time
+         date
+         gYearMonth
+         gYear
+         gMonthDay
+         gDay
+         gMonth
+         hexBinary
+         base64Binary
+         anyURI
+         QName
+         NOTATION
 
-   - Added support for <simpleType>, both named and anonymous, with
-     mostly complete <restriction> support.
+1.04  2003-10-06
+   - Added support for minOccurs and maxOccurs with <sequence>,
+     <choice> and <all>.
 
-   - Added automated test to run test suite against Xerces/C++ if
-     available.  This should keep our tests in line with expected
-     reality.
+   - Fixed bug in cache implementation that allowed some state from a
+     failed validation run to leak into subsequent runs.
+
+   - Added support for use as a SAX filter anywhere in a SAX pipeline.
 
 1.03  2003-10-03
    - Added cache mode to reuse schema objects between calls.
@@ -39,29 +57,23 @@ Revision history for XML::Validator::Schema
    - Fixed bug where test suite would fail if XML::SAX::RTF was
      installed.
 
-1.04  2003-10-06
-   - Added support for minOccurs and maxOccurs with <sequence>,
-     <choice> and <all>.
+1.02  2003-10-01
+   - Added support for composition of <sequence> and <choice> groups.
 
-   - Fixed bug in cache implementation that allowed some state from a
-     failed validation run to leak into subsequent runs.
+   - Added support for <simpleType>, both named and anonymous, with
+     mostly complete <restriction> support.
 
-   - Added support for use as a SAX filter anywhere in a SAX pipeline.
+   - Added automated test to run test suite against Xerces/C++ if
+     available.  This should keep our tests in line with expected
+     reality.
 
-1.05 2003-11-13 
-   - Added support for more simple types (Russell B Cecala) :
-         float
-         duration
-         time
-         date
-         gYearMonth
-         gYear
-         gMonthDay
-         gDay
-         gMonth
-         hexBinary
-         base64Binary
-         anyURI
-         QName
-         NOTATION
+1.01  2003-09-26
+   - Fixed compatibility with XML::LibXML.
 
+   - Modified test suite to run tests against all available SAX parsers.
+
+   - Added support for simple <choice> and <all> content modules (no
+     combinations yet).
+
+1.00  2003-09-25
+   - First Release.

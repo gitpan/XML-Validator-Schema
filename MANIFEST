@@ -20,6 +20,7 @@ Schema/SimpleType.pm
 Schema/SimpleTypeNode.pm
 Schema/TypeLibrary.pm
 Schema/Util.pm
+TODO
 t/01basic.t
 t/02yaml.t
 t/03types.t
@@ -27,6 +28,7 @@ t/04model.t
 t/05xerces.t
 t/06passthru.t
 t/all.yml
+t/all_min0.yml
 t/attribute.yml
 t/attribute_ref.yml
 t/attribute_types.yml
@@ -36,6 +38,7 @@ t/bad_restriction.yml
 t/choice.yml
 t/element_ref.yml
 t/element_type.yml
+t/elementrefintype.yml
 t/foo.yml
 t/global_type.yml
 t/group.yml.todo
@@ -46,6 +49,7 @@ t/lib/YAML/Family.pm
 t/lib/YAML/Node.pm
 t/lib/YAML/Transfer.pm
 t/media.yml
+t/min2max2.yml
 t/multi_level.yml
 t/multiroot.yml
 t/ora_book_1.yml.todo

@@ -272,6 +272,22 @@ $BUILTIN{NOTATION}->restrict(pattern =>
 $BUILTIN{integer} = $BUILTIN{decimal}->derive(name => 'integer');
 $BUILTIN{integer}->restrict(pattern => qr/^[+-]?\d+$/);
 
+# http://www.w3.org/TR/2000/CR-xmlschema-2-20001024/#nonPositiveInteger
+$BUILTIN{nonPositiveInteger} = $BUILTIN{integer}->derive(name => 'nonPositiveInteger');
+$BUILTIN{nonPositiveInteger}->restrict( maxInclusive => 0 );
+
+# http://www.w3.org/TR/2000/CR-xmlschema-2-20001024/#nonNegativeInteger
+$BUILTIN{nonNegativeInteger} = $BUILTIN{integer}->derive(name => 'nonNegativeInteger');
+$BUILTIN{nonNegativeInteger}->restrict( minInclusive => 0 );
+
+# http://www.w3.org/TR/2000/CR-xmlschema-2-20001024/#positiveInteger
+$BUILTIN{positiveInteger} = $BUILTIN{nonNegativeInteger}->derive(name => 'positiveInteger');
+$BUILTIN{positiveInteger}->restrict( minInclusive => 1 );
+
+# http://www.w3.org/TR/2000/CR-xmlschema-2-20001024/#negativeInteger
+$BUILTIN{negativeInteger} = $BUILTIN{nonPositiveInteger}->derive(name => 'negativeInteger');
+$BUILTIN{negativeInteger}->restrict( maxInclusive => -1 );
+
 $BUILTIN{int} = $BUILTIN{integer}->derive(name => 'int');
 $BUILTIN{int}->restrict(minInclusive => -2147483648, 
                         maxInclusive => 2147483647);

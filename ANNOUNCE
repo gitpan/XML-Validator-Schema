@@ -1,22 +1,18 @@
-ANNOUNCEMENT: XML::Validator::Schema 1.05
+ANNOUNCEMENT: XML::Validator::Schema 1.06
 
 CHANGES
 
-   - Added support for more simple types (Russell B Cecala) :
-         float
-         duration
-         time
-         date
-         gYearMonth
-         gYear
-         gMonthDay
-         gDay
-         gMonth
-         hexBinary
-         base64Binary
-         anyURI
-         QName
-         NOTATION
+   - Fixed bug in <all> support with minOccurs="0" contents. 
+     (josef@clubphoto.com)
+
+   - Fixed bug where minOccurs of 2 or greater wouldn't work
+     correctly.
+
+   - Added support for positiveInteger, negativeInteger,
+     nonPositiveInteger and nonNegativeInteger.  (adamk@ali.as)
+
+   - Fixed bug where references to elements inside complex types
+     wouldn't get resolved.
 
 DESCRIPTION
 

@@ -29,3 +29,21 @@
 --- >
 PASS
 
+--- |
+  <category>
+    <element>
+      <data>foo</data>
+      <element>
+        <data>bar</data>
+        <element>
+          <data>bar</data>
+          <element>
+            <data>bar</data>
+          </element>
+        </element>  
+      </element>
+    </element>
+  </category>
+--- >
+PASS
+
