@@ -84,7 +84,7 @@ $BUILTIN{decimal} = __PACKAGE__->new(name   => 'decimal',
                                                MAXINCLUSIVE|MAXEXCLUSIVE|
                                                MININCLUSIVE|MINEXCLUSIVE,
                                     );
-$BUILTIN{decimal}->restrict(pattern => qr/^[+-]?\d+(?:\.\d+)?$/);
+$BUILTIN{decimal}->restrict(pattern => qr/^[+-]?(?:(?:\d+(?:\.\d+)?)|(?:\.\d+))$/);
 
 $BUILTIN{dateTime} = __PACKAGE__->new(name   => 'dateTime', 
                                       facets => PATTERN|WHITESPACE
@@ -149,7 +149,7 @@ $BUILTIN{date} = __PACKAGE__->new(name   => 'date',
                                                 #MININCLUSIVE|MINEXCLUSIVE,
                                      );
 $BUILTIN{date}->restrict(pattern => 
-	qr /^[-]?(\d{4,})-(\d\d)-(\d\d)(??{_validate_date($1,$2,$3)})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/);
+	qr /^[-]?(\d{4,})-(\d\d)-(\d\d)(??{ _validate_date($1,$2,$3) })(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/);
 		
 
 $BUILTIN{gYearMonth} = __PACKAGE__->new(name   => 'gYearMonth', 
@@ -473,13 +473,17 @@ sub check {
 my @days_in_month = ([0,31,28,31,30,31,30,31,31,30,31,30,31],
                      [0,31,29,31,30,31,30,31,31,30,31,30,31]);
 
-sub _validate_date ($$$) {
+sub _validate_date {
     my ($y, $m, $d)= @_;
+
     # any +ve integral year is valid
-    return qr{(?!)} if $y != abs int $y;
-    return qr{(?!)} unless 1 <= $m and $m <= 12;
-    return qr{(?!)} unless 1 <= $d and $d <=$days_in_month[_leap_year($y)][$m];
-    return qr{(?=)};
+    return q{(?!)} if $y != abs int $y;
+    return q{(?!)} unless 1 <= $m and $m <= 12;
+    return q{(?!)} unless 1 <= $d and $d <=$days_in_month[_leap_year($y)][$m];
+
+    # perl 5.10.0 choked on (?=) here, switching to just returning
+    # nothing, which should also always match.
+    return '';
 }
 
 sub _leap_year {

@@ -28,4 +28,11 @@ SKIP: {
     is($@->{LineNumber}, 6);
     ok($@->{ColumnNumber} >= 11);
     like($@, qr/\[Ln: 6/);
+
+    # now a bad XSD
+    eval { $v = XML::Validator::Schema->new(file => 't/bad.xsd') };
+    isa_ok($@, 'XML::SAX::Exception');
+    is($@->{LineNumber}, 4);
+    ok($@->{ColumnNumber} >= 6);
+    like($@, qr/\[Ln: 4/);
 };

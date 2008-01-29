@@ -41,7 +41,7 @@ sub find_all {
 
 sub find {
     my ($self, %arg) = @_;
-    croak("Missing required name paramter.") unless $arg{name};
+    croak("Missing required name parameter.") unless $arg{name};
 
     # HACK: fix when QName resolution works
     $arg{name} =~ s!^[^:]*:!!;
@@ -52,8 +52,8 @@ sub find {
 
 sub add {
     my ($self, %arg) = @_;
-    croak("Missing required name paramter.") unless $arg{name};
-    croak("Missing required obj paramter.") unless $arg{obj};
+    croak("Missing required name parameter.") unless $arg{name};
+    croak("Missing required obj parameter.") unless $arg{obj};
     
     # HACK: fix when QName resolution works
     $arg{name} =~ s!^\w+:!!;

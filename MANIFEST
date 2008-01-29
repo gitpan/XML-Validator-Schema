@@ -3,10 +3,10 @@ Changes
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
-META.yml			Module meta-data (added by MakeMaker)
 README
 Schema.pm
 Schema/Attribute.pm
+Schema/AttributeNode.pm
 Schema/AttributeLibrary.pm
 Schema/ComplexTypeNode.pm
 Schema/ElementLibrary.pm
@@ -32,6 +32,7 @@ t/all_min0.yml
 t/attribute.yml
 t/attribute_ref.yml
 t/attribute_types.yml
+t/attribute_types2.yml
 t/bad_all.yml
 t/bad_attribute_type.yml
 t/bad_constraint_fractionDigits-totalDigits.yml
@@ -87,3 +88,8 @@ TODO
 t/content_message.yml
 t/07locator.t
 t/bad.xml
+t/bad.xsd
+t/bad_union.yml
+t/union_test_inline.yml
+t/union_test_ref.yml
+META.yml                                 Module meta-data (added by MakeMaker)

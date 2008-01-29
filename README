@@ -1,15 +1,19 @@
-XML::Validator::Schema version 1.08
+XML::Validator::Schema version 1.09
 
 CHANGES
   
-   - Added optional support for line and column numbers using
-     XML::Filter::ExceptionLocator and XML::SAX::ExpatXS.
+   - Added support for line and column numbers in errors in the schema
+     file using XML::Filter::ExceptionLocator and XML::SAX::ExpatXS.
 
-   - Added support for totalDigits and fractionDigits facets of
-     decimal types, excluding double and float. (Toby Long-Leather)
+   - Added support for unions. (John Hollingum)
 
-   - Improved content-model validation failure message to include the
-     name of the enclosing element. (Suggested by Jean Flouret)
+   - Fixed a bug which broke date type checking in Perl v5.10.
+
+   - Fixed decimal type to allow values without integer parts like
+     ".45". (Michael Fox)
+
+   - Fixed bug where attributes couldn't have anonymous simple-type
+     definitions.  (reported by Jeremy Osborn)
 
 DESCRIPTION
 

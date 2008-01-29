@@ -53,7 +53,7 @@ sub add_daughter {
     my ($self, $d) = @_;
 
     # check that min/mix are 0 or 1 for 'all' contents
-    if ($self->{is_all}) {
+    if ($self->{is_all} and $d->isa('XML::Validator::Schema::ElementNode')) {
         _err("Element '$d->{name}' must have minOccurs of 0 or 1 because it is within an <all>.")
           unless ($d->{min} eq '0' or $d->{min} eq '1');
         _err("Element '$d->{name}' must have maxOccurs of 0 or 1 because it is within an <all>.")
@@ -69,7 +69,47 @@ sub check_contents {
 
     # do type check if a type is declared
     if ($self->{type}) {
-        my ($ok, $msg) = $self->{type}->check($contents);
+
+        # Union isn't really a simple type. In a sense it isn't a type
+        # at all,  if it is, it sure as hell isn't simple.  It's just
+        # a rather laissez-faire view of what the type might be.
+        # Hence I've not handled union in SimpleType::check.  As it's
+        # not handled directly in SimpleType, I've bastardized the usage
+        # of $self->{type} to just contain a string effectively indicating
+        # that it is an exception
+
+        my ( $ok, $msg);
+        if ($self->{type} eq 'union' ) {
+            # it only has to match one of the member types:
+            if ( not defined($self->{members}) ){
+                die "Internal error: I aint got no members\n";
+            } else {
+                if (@{$self->{members}} == 0 ) {
+		    _err("Element '$self->{name}' is a union with no members.");
+                }
+            } 
+
+            my $types = '';
+	    $ok = 0;
+	    foreach my $m ( @{$self->{members}} ) {
+                if ( not my $x = ref($m) ) {
+		    die ("Internal error, that isn't a reference\n");
+                }
+                ( $ok, $msg ) = $m->{type}->check($contents); 
+		last if $ok;
+                $types .= ' '.$m->{type}->{base}->{name};
+            }
+
+	    if ( not $ok ) {
+                # Just giving the error for the last one checked isn't
+                # really that helpful.  We need to make it explicit that
+                # NONE of the tests succeeded.
+                $msg = "content does not match any of the union base types".
+                  " [ $types ]";
+            }
+        } else {
+            ($ok, $msg) = $self->{type}->check($contents);
+        }
         _err("Illegal value '$contents' in element <$self->{name}>, $msg")
           unless $ok;
     }

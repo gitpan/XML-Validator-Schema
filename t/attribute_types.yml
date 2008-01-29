@@ -12,6 +12,14 @@
         <attribute name="string" type="string" use="optional" />
         <attribute name="bool" type="boolean" use="optional" />
         <attribute name="date" type="dateTime" use="optional" />
+        <attribute name="foo_or_bar" use="optional">
+          <simpleType>
+            <restriction base="xsd:string">
+              <enumeration value="foo"/>
+              <enumeration value="bar"/>
+            </restriction>
+          </simpleType>
+        </attribute>
       </complexType>
     </element>
   </schema>
@@ -28,6 +36,21 @@ PASS
 
 --- |
   <foo int="what are you looking at?" />
+--- >
+FAIL /[Ii]llegal value/
+
+--- |
+  <foo foo_or_bar="foo" />
+--- >
+PASS
+
+--- |
+  <foo foo_or_bar="bar" />
+--- >
+PASS
+
+--- |
+  <foo foo_or_bar="fooz" />
 --- >
 FAIL /[Ii]llegal value/
 

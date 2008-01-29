@@ -20,13 +20,14 @@ assigned to the element or complex type's 'model' attribute.
 
 =cut
 
-# parse a model based on a <sequence>, <choice> or <all> returning the
+# parse a model based on a <sequence>, <choice>, <all> or <union> returning the
 # appropriate subclass
 sub parse {
     my ($pkg, $data) = @_;
     my $name = $data->{LocalName};
     croak("Unknown model type '$name'")
-      unless $name eq 'sequence' or $name eq 'choice' or $name eq 'all';    
+      unless $name eq 'sequence' or $name eq 'choice' or $name eq 'all'
+             or $name eq 'union';    
 
     # construct as appropriate
     $pkg = "XML::Validator::Schema::" . ucfirst($name) . "ModelNode";
@@ -244,6 +245,40 @@ sub _combine_desc_parts {
 
     return $desc;
 }
+
+package XML::Validator::Schema::UnionModelNode;
+use base 'XML::Validator::Schema::ModelNode';
+
+sub _combine_final_parts {
+    my ($self, $parts) = @_;
+
+    # build final re
+    my $re = '(?:' . join('|', map { '(?:'. $_ . ')' } @$parts) . ')' .
+      XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
+
+    return $re;
+}
+
+sub _combine_running_parts {
+    my ($self, $parts) = @_;
+
+    # build running re
+    my $re = '(?:' . $self->_combine_final_parts($parts) . ')' .
+      XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
+
+    return $re;
+}
+
+sub _combine_desc_parts {
+    my ($self, $parts) = @_;
+
+    # build description
+    my $desc = '(' . join('|', @$parts) . ')' .
+      XML::Validator::Schema::ModelNode::_qual($self->{min}, $self->{max});
+
+    return $desc;
+}
+
 
 package XML::Validator::Schema::AllModelNode;
 use base 'XML::Validator::Schema::SequenceModelNode';

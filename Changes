@@ -1,5 +1,18 @@
 Revision history for XML::Validator::Schema
 
+1.09 2008-01-29
+   - Fixed a bug which broke date type checking in Perl v5.10.
+
+   - Added support for unions. (John Hollingum)
+
+   - Fixed decimal type to allow values like ".45". (Michael Fox)
+
+   - Added support for line and column numbers in errors in the schema
+     file using XML::Filter::ExceptionLocator and XML::SAX::ExpatXS.
+
+   - Fixed bug where attributes couldn't have anonymous simple-type
+     definitions.  (reported by Jeremy Osborn)
+
 1.08 2004-11-04
    - Added optional support for line and column numbers using
      XML::Filter::ExceptionLocator and XML::SAX::ExpatXS.

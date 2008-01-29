@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.08';
+our $VERSION = '1.09';
 
 =head1 NAME
 
@@ -156,6 +156,8 @@ namespace, either using a default namespace or a prefix.
 
   <simpleContent>
 
+    The only supported sub-element is <extension>.
+
   <extension>
 
     Supported attributes: base
@@ -169,6 +171,8 @@ namespace, either using a default namespace or a prefix.
   <restriction>
 
     Supported attributes: base
+
+    Notes: only allowed inside <simpleType>
 
   <whiteSpace>
 
@@ -223,6 +227,9 @@ namespace, either using a default namespace or a prefix.
   <documentation>
 
     Supported attributes: name
+
+  <union>
+    Supported attributes: MemberTypes
 
 =head2 Simple Type Support
 
@@ -490,6 +497,7 @@ use XML::Validator::Schema::ElementLibrary;
 use XML::Validator::Schema::AttributeLibrary;
 use XML::Validator::Schema::ModelNode;
 use XML::Validator::Schema::Attribute;
+use XML::Validator::Schema::AttributeNode;
 
 use XML::Validator::Schema::Util qw(_err);
 our %CACHE;
@@ -559,10 +567,20 @@ sub parse_schema {
 
     _err("Specified schema file '$self->{file}' does not exist.")
       unless -e $self->{file};
+    
+    # initialize the schema parser
+    my $parser = XML::Validator::Schema::Parser->new(schema => $self);
+
+    # add line-numbers and column-numbers to errors if
+    # XML::Filter::ExceptionLocator is available
+    eval { require XML::Filter::ExceptionLocator; };
+    unless ($@) {
+        # create a new exception-locator and set it up above the parser
+        $parser = XML::Filter::ExceptionLocator->new( Handler => $parser );
+    }
 
     # parse the schema file
-    my $parser = XML::SAX::ParserFactory->parser(
-                   Handler => XML::Validator::Schema::Parser->new(schema => $self));
+    $parser = XML::SAX::ParserFactory->parser(Handler => $parser);
     $parser->parse_uri($self->{file});
 }
 

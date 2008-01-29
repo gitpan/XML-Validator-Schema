@@ -59,6 +59,24 @@ sub parse_facet {
 sub compile {
     my ($self) = shift;
 
+    if ( $self->{mother}->{is_union} ) {
+        my $mum=$self->{mother};
+	$self->{name} = $mum->{name} .
+ 	                $mum->{next_instance};
+        $self->{mother}->{next_instance} ++;
+    }
+
+    # If my only child is a union, everything is already compiled
+
+    if ( $self->{got_union} ) {
+        # all compilation done at lower level
+        # it looks sort of inappropriate to return a string when
+        # everything is expecting a SimpleType in here. But my view is that
+        # a union isn't really a simpletype and it isn't appropriate to
+        # handle a union directly in SimpleType.  This alerts ElementNode
+        # to the fact that it has to do a little extra work. 
+        return 'union';
+    }
     # compile a new type
     my $base = $self->root->{type_library}->find(name => $self->{base});
     my $type = $base->derive();
@@ -81,6 +99,22 @@ sub compile {
     $self->root->{type_library}->add(name => $self->{name},
                                      obj  => $type)
       if $self->{name};
+
+    if ( $self->{mother}->{is_union} ) {
+        # update great-gran with this simple type member
+        # However this node is a SimpleTypeNode, and to make simple
+        # re-use of 'check' possible in ElementNode, what we should
+        # be pushing is an ElementNode
+
+        my $gg = $self->{mother}->{mother}->{mother};
+        # Make a new elementnode to stuff into members
+        my $mbr = XML::Validator::Schema::ElementNode->new();
+
+        $mbr->{type} = $type;
+        # make this simpletype the daughter of the new member element:
+        $mbr->add_daughter($self);
+        push(@{$gg->{members}},$mbr);
+    }
 
     return $type;
 }

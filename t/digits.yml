@@ -93,3 +93,18 @@ PASS
 --- >
 PASS
 
+--- |
+<dec>0.45</dec>
+--- >
+PASS
+
+--- |
+<dec>.45</dec>
+--- >
+PASS
+
+--- |
+<dec></dec>
+--- >
+FAIL
+
