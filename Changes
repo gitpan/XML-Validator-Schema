@@ -1,5 +1,10 @@
 Revision history for XML::Validator::Schema
 
+1.10 2008-01-31
+   - Added a check in Makefile.PL for a broken XML::SAX install.
+     Hopefully this will convince the legions of CPAN testers with
+     broken XML::SAX installs to leave me alone.
+
 1.09 2008-01-29
    - Fixed a bug which broke date type checking in Perl v5.10.
 

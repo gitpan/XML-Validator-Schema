@@ -1,19 +1,10 @@
-XML::Validator::Schema version 1.09
+XML::Validator::Schema version 1.10
 
 CHANGES
-  
-   - Added support for line and column numbers in errors in the schema
-     file using XML::Filter::ExceptionLocator and XML::SAX::ExpatXS.
 
-   - Added support for unions. (John Hollingum)
-
-   - Fixed a bug which broke date type checking in Perl v5.10.
-
-   - Fixed decimal type to allow values without integer parts like
-     ".45". (Michael Fox)
-
-   - Fixed bug where attributes couldn't have anonymous simple-type
-     definitions.  (reported by Jeremy Osborn)
+   - Added a check in Makefile.PL for a broken XML::SAX install.
+     Hopefully this will convince the legions of CPAN testers with
+     broken XML::SAX installs to leave me alone.  
 
 DESCRIPTION
 

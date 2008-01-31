@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                XML-Validator-Schema
-version:             1.09
+version:             1.10
 abstract:            validate XML against a subset of W3C XML Schema
 license:             ~
 author:              
